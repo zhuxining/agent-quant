@@ -1,7 +1,7 @@
 [project]
 name = "Agent-Quant"
 version = "0.1.0"
-description = "Modern FastAPI backend with best practices"
+description = "Get data, build prompt, LLM agent trading signal, simulated trading"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -13,10 +13,11 @@ dependencies = [
     "loguru>=0.7.3",
     "fastapi-users[oauth,sqlalchemy]>=15.0.1",
     "asyncpg>=0.30.0",
-    "openai>=2.7.1",
     "longport>=3.0.17",
     "ta-lib>=0.6.8",
     "pandas>=2.3.3",
+    "pydantic-ai-slim[openai]>=1.10.0",
+    "quantstats>=0.0.77",
 ]
 
 [dependency-groups]

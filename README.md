@@ -1,16 +1,17 @@
 # 关于项目
 
-这是一个使用 FastAPI 最佳实践构建的纯后端项目，参考官方实践。
+获取股票市场数据，构建 Prompt 给 Agent，得到交易信号，模拟交易并记录分析结果。
 
 ## 技术栈
 
-- [FastAPI](https://fastapi.tiangolo.com/)
-- [Pydantic](https://pydantic-docs.helpmanual.io/)
-- [SQLModel](https://sqlmodel.tiangolo.com/)
-- [Alembic](https://alembic.sqlalchemy.org/)
-- [Granian](https://github.com/emmett-framework/granian)
-- [Loguru](https://loguru.readthedocs.io/)
-- [FastAPI Users](https://fastapi-users.github.io/fastapi-users/)
+- [FastAPI](https://fastapi.tiangolo.com/)：
+- [Pydantic](https://pydantic-docs.helpmanual.io/)：
+- [SQLModel](https://sqlmodel.tiangolo.com/)：
+- [Loguru](https://loguru.readthedocs.io/)：
+- [FastAPI Users](https://fastapi-users.github.io/fastapi-users/)：
+- [Pydantic AI](https://github.com/pydantic/pydantic-ai/):
+- [Quantstats](https://github.com/ranaroussi/quantstats/):
+- [Longport](https://open.longportapp.com/):
 
 ## 入门指南
 
@@ -34,24 +35,18 @@ uv run ruff check --fix
 
 ## 路线图
 
-- [ ] code
-  - [x] 增删改查 - CRUD
-  - [x] 数据库模型 - base_model
-    - [x] 表默认字段
-    - [x] 数据库注释
-    - [ ] 数据关系
-  - [ ] 日志
-  - [ ] 工厂函数
-    - [ ] api 文档是否显示
-    - [ ] 数据初始化
-  - [ ] 返回数据格式
-    - [ ] 异常定义
-  - [ ] 完善 FastAPI User 的增删改差及时间记录
-- [ ] deploy
-  - [ ] docker 部署
-  - [ ] work 配置
-  - [ ] 开发/生产环境依赖隔离安装
-- [ ] alembic
-  - [ ] 数据迁移
-- [ ] docs
-  - [ ] 使用的一些注意事项
+- Quant
+  - 标的列表：制定要获取数据的股票标的列表
+  - 行情获取：通过longport获取市场数据，通过ta-lib计算指标
+  - 交易账户：初始化账户信息，每次交易更新最新持仓
+  - 指令聚合：将股票数据、账户数据组装成 prompt
+  - 模型调用：将 prompt 提供给多个 Agent 交易员
+  - 交易执行：根据交易信号，执行交易动作并更新账户
+  - 运行日志：记录 Agent 的输入输出信息
+  - 交易回测：借助 quantstats 组合投资情况
+  - 自动运行：根据定时任务自动运行，并将交易信号通知出去
+
+- Front-end
+  - 管理标的列表
+  - 查看交易信号
+  - 分析账户情况
