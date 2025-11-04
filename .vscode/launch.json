@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Debug FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "granian",
+            "args": [
+                "--interface",
+                "asgi",
+                "app.main:app",
+                "--reload",
+                "--log",
+                "--access-log",
+            ],
+            "jinja": false
+        }
+    ]
+}
