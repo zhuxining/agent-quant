@@ -5,11 +5,11 @@ from pydantic import UUID7, BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app import models
-from app.api import deps
-from app.models import Post, User
-from app.utils.exceptions import ForbiddenException, NotFoundException
-from app.utils.responses import ResponseEnvelope, success_response
+from src import models
+from src.api import deps
+from src.models import Post, User
+from src.utils.exceptions import ForbiddenException, NotFoundException
+from src.utils.responses import ResponseEnvelope, success_response
 
 SessionDep = Annotated[AsyncSession, Depends(deps.get_db)]
 CurrentUserDep = Annotated[User, Depends(deps.current_active_user)]

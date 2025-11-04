@@ -2,10 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from app.api.deps import current_active_user, fastapi_users
-from app.models import UserRead, UserUpdate
-from app.models.user import User
-from app.utils.responses import ResponseEnvelope, success_response
+from src.api.deps import current_active_user, fastapi_users
+from src.models import UserRead, UserUpdate
+from src.models.user import User
+from src.utils.responses import ResponseEnvelope, success_response
 
 router = APIRouter(prefix="/users", tags=["users"])
 

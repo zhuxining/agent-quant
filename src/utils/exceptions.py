@@ -7,7 +7,7 @@ from loguru import logger
 from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.utils.responses import error_response
+from src.utils.responses import error_response
 
 
 class AppException(Exception):

@@ -3,7 +3,7 @@ from typing import Any, TypeVar
 from pydantic import Field
 from pydantic.generics import GenericModel
 
-from app.utils.logging import get_request_id
+from src.utils.logging import get_request_id
 
 DataT = TypeVar("DataT")
 

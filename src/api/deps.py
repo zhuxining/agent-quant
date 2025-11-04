@@ -15,9 +15,9 @@ from fastapi_users.exceptions import UserAlreadyExists
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
-from app.core.db import async_session_maker
-from app.models import User, UserCreate
+from src.core.config import settings
+from src.core.db import async_session_maker
+from src.models import User, UserCreate
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -50,7 +50,7 @@ SessionDep = Annotated[AsyncSession, Depends(get_db)]
 async def get_user_db(
 	session: SessionDep,
 ) -> AsyncGenerator[SQLAlchemyUserDatabase[User, uuid.UUID]]:
-	from app.models.user import (
+	from src.models.user import (
 		OAuthAccount,
 		User,
 	)  # Import here to avoid circular dependency

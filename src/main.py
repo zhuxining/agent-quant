@@ -8,12 +8,12 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.routing import APIRoute
 from loguru import logger
 
-from app.api.api import api_router
-from app.api.deps import create_user
-from app.core.config import settings
-from app.core.db import create_db_and_tables
-from app.utils.exceptions import register_exception_handlers
-from app.utils.logging import RequestLoggingMiddleware, setup_logging
+from src.api.api import api_router
+from src.api.deps import create_user
+from src.core.config import settings
+from src.core.db import create_db_and_tables
+from src.utils.exceptions import register_exception_handlers
+from src.utils.logging import RequestLoggingMiddleware, setup_logging
 
 
 @asynccontextmanager

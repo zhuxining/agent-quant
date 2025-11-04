@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 
-from app.core.config import settings
-from app.models.user import Base
+from src.core.config import settings
+from src.models.user import Base
 
 database_url = settings.SQLITE_URL if settings.ENVIRONMENT == "dev" else settings.postgre_url
 

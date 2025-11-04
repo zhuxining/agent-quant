@@ -8,7 +8,7 @@
             "args": [
                 "--interface",
                 "asgi",
-                "app.main:app",
+                "src.main:app",
                 "--reload",
                 "--log",
                 "--access-log",
