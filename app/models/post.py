@@ -18,7 +18,7 @@ class Post(BaseModel, PostBase, table=True):
 	__table_args__ = dict(comment="Posts table")
 
 	author_id: uuid.UUID = Field(
-		default_factory=uuid.uuid7, sa_column_kwargs={"comment": "作者ID, UUID v7"}
+		default_factory=uuid.UUID, sa_column_kwargs={"comment": "作者ID, UUID v7"}
 	)
 
 
