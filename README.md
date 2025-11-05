@@ -74,7 +74,6 @@ uv run ruff check --fix
 ### 日志与测试
 
 - 使用 Loguru 记录行情、指标、快照等关键节点，便于观察数据管线的输入输出。
-- `pytest.ini` 注册 `integration` 标记，可通过 `uv run pytest -s -m integration` 定向执行外部依赖测试。
 - `tests/test_market_data_integration.py` 会对多个标的（如 `AAPL.US`、`510300.SH`）进行拉取并打印 MarketData/Indicator/Snapshot，验证链路可用性。
 
 上述分层让各模块职责清晰，便于后续扩展额外数据源、指标或执行逻辑，同时保持测试与监控的透明度。
