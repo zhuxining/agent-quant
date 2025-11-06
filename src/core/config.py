@@ -82,5 +82,11 @@ class Settings(BaseSettings):
 	FIRST_SUPERUSER_EMAIL: str = "admin@admin.com"
 	FIRST_SUPERUSER_PASSWORD: str = "admin@admin.com"
 
+	# DeepSeek Agent Settings
+	DEEPSEEK_API_KEY: str = ""
+	DEEPSEEK_BASE_URL: str | None = None
+	DEEPSEEK_MODEL: str = "deepseek-chat"
+	DEEPSEEK_TIMEOUT: float | None = 30.0
+
 
 settings = Settings()
