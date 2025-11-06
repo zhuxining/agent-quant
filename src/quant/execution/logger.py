@@ -36,9 +36,14 @@ class ExecutionLogger:
 
     def log_execution(self, snapshot: AccountSnapshot) -> None:
         """Log the account snapshot after execution."""
+        positions_payload = {
+            symbol: position.as_dict()
+            for symbol, position in snapshot.positions.items()
+        }
         logger.bind(component="execution").info(
             "Account updated",
             cash=snapshot.cash,
-            positions=snapshot.positions,
+            positions=positions_payload,
+            realized_pnl=snapshot.realized_pnl,
             timestamp=snapshot.timestamp.isoformat(),
         )

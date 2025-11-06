@@ -10,6 +10,7 @@ from .types import (
 	AccountSnapshot,
 	AgentResponse,
 	BacktestReport,
+	ExecutedTrade,
 	IndicatorSnapshot,
 	MarketBar,
 	PromptPayload,
@@ -42,9 +43,18 @@ class IndicatorCalculator(Protocol):
 class AccountRepository(Protocol):
 	"""Persists and retrieves account snapshots."""
 
-	def load(self) -> AccountSnapshot: ...
+	def load(self, account_id: str = "default") -> AccountSnapshot: ...
 
-	def save(self, snapshot: AccountSnapshot) -> None: ...
+	def save(self, snapshot: AccountSnapshot, account_id: str = "default") -> None: ...
+
+	def record_trade(self, trade: ExecutedTrade, account_id: str = "default") -> None: ...
+
+	def list_trades(
+		self,
+		account_id: str = "default",
+		*,
+		limit: int | None = None,
+	) -> Sequence[ExecutedTrade]: ...
 
 
 @runtime_checkable

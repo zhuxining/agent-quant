@@ -16,7 +16,8 @@ class OrderExecutorService:
 
     def execute(self, signal: TradeSignal) -> AccountSnapshot:
         """Execute a trade signal and broadcast the outcome."""
-        execution_price = float(signal.metadata.get("price") or 0.0)
+        raw_price = signal.metadata.get("price") if signal.metadata else None
+        execution_price = float(raw_price) if raw_price is not None else None
         snapshot = self._account_service.apply_signal(signal, execution_price)
 
         if self._event_bus:

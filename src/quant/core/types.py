@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -42,12 +43,51 @@ class TradeSignal:
 
 
 @dataclass(slots=True)
+class PositionSnapshot:
+	"""Snapshot details for a single position."""
+
+	symbol: str
+	quantity: float
+	avg_price: float
+	last_price: float | None = None
+
+	def market_value(self, price: float | None = None) -> float:
+		"""Return the market value using the provided or cached price."""
+		reference_price = price if price is not None else self.last_price or 0.0
+		return reference_price * self.quantity
+
+	def as_dict(self) -> dict[str, float]:
+		"""Serialize to a lightweight mapping for logging or JSON."""
+		return {
+			"symbol": self.symbol,
+			"quantity": self.quantity,
+			"avg_price": self.avg_price,
+			"last_price": self.last_price or 0.0,
+		}
+
+
+@dataclass(slots=True)
 class AccountSnapshot:
 	"""Snapshot of account balances and positions."""
 
 	cash: float
-	positions: dict[str, float] = field(default_factory=dict)
+	positions: dict[str, PositionSnapshot] = field(default_factory=dict)
+	realized_pnl: float = 0.0
 	timestamp: datetime = field(default_factory=datetime.utcnow)
+
+	def position_quantity(self, symbol: str) -> float:
+		"""Return the current quantity for the given symbol."""
+		position = self.positions.get(symbol)
+		return position.quantity if position else 0.0
+
+	def equity(self, pricing: Mapping[str, float] | None = None) -> float:
+		"""Calculate net equity using optional pricing data."""
+		pricing = pricing or {}
+		holdings = sum(
+			position.market_value(pricing.get(symbol))
+			for symbol, position in self.positions.items()
+		)
+		return self.cash + holdings
 
 
 @dataclass(slots=True)
@@ -65,6 +105,19 @@ class AgentResponse:
 	raw_text: str
 	signals: list[TradeSignal] = field(default_factory=list)
 	latency_ms: int | None = None
+	metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class ExecutedTrade:
+	"""Executed trade record stored for auditing and analytics."""
+
+	symbol: str
+	side: str
+	quantity: float
+	price: float
+	executed_at: datetime = field(default_factory=datetime.utcnow)
+	realized_pnl: float = 0.0
 	metadata: dict[str, Any] = field(default_factory=dict)
 
 

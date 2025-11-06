@@ -21,11 +21,16 @@ class PromptBuilderService:
     ) -> PromptPayload:
         """Construct a prompt string with relevant context."""
         latest_bar = bars[-1] if bars else None
+        position = account.positions.get(symbol)
+        position_size = position.quantity if position else 0.0
+        avg_price = position.avg_price if position else 0.0
         lines = [
             f"Symbol: {symbol}",
             f"Latest close: {latest_bar.close if latest_bar else 'n/a'}",
             f"Cash balance: {account.cash}",
-            f"Position size: {account.positions.get(symbol, 0.0)}",
+            f"Realized PnL: {account.realized_pnl}",
+            f"Position size: {position_size}",
+            f"Average cost: {avg_price}",
             "Indicators:",
         ]
         for name, value in sorted(indicators.values.items()):
