@@ -7,7 +7,7 @@ This file provides guidance working with code in this repository.
 | Path | Role | Key Notes |
 | --- | --- | --- |
 | `src/main.py` | FastAPI entry point | Creates the application object and mounts routers. |
-| `src/core/` | Configuration and infrastructure | Centralizes settings (`config.py`) and database wiring (`db.py`). |
+| `src/core/` | Configuration and infrastructure | Centralizes settings (`config.py`) and Shared dependencies (database sessions, auth context, etc.). |
 | `src/quant/` | Agent quant  | Get symbol data, build prompt, LLM agent trading signal, simulated trading |
 | `src/api/` | Public HTTP surface | `api.py` aggregates routers; `deps.py` stores shared dependencies; `routes/` hosts feature-specific endpoints. |
 | `src/models/` | Domain and persistence models | `base_model.py` defines shared ORM base; `user.py` and `post.py` hold entity definitions. |
@@ -20,19 +20,25 @@ This file provides guidance working with code in this repository.
 - `uv run serve.py` - Start server
 - `uv run ruff check --fix` Format and lint code with Ruff
 
+## Database and Pydantic Verification Model
+
+- The model definition is divided into three parts, public basic field, database model, pydantic models(create update read)
+- `src/dmodels/bese_model.py` provides common column definitions, ensure usage in database model
+- Refer `src/models/post.py`
+
 ## Request Flow Notes
 
-- Incoming requests enter through `src/api/routes/*` modules and are registered via `src/api/api.py`.
-- Shared dependencies (database sessions, auth context, etc.) live in `src/api/deps.py` and are injected into routes.
-- Route handlers call into `src/models/*` for ORM interactions and reuse helpers from `src/utils/` when needed.
-- Responses propagate back through the router, letting middleware and exception handlers defined in `src/main.py` finalize the output.
+- Incoming requests enter through `src/api/routes/*` modules and are registered via `src/api/api.py`
+- Shared dependencies (database sessions, auth context, etc.) live in `src/core/deps.py`
+- Route handlers call into `src/models/*` for ORM interactions and reuse helpers from `src/utils/` when needed
+- Responses propagate back through the router, letting middleware and exception handlers defined in `src/main.py` finalize the output
 
 ## Update Tips
 
-- When adding a new route, place it in a dedicated module under `src/api/routes/`, export the router, and include it inside `src/api/api.py`.
-- Extend `src/models/` with new SQLAlchemy models and keep Pydantic schemas colocated when practical to avoid missing imports.
-- Mirror configuration changes across `.env`, `.env.example`, and `src/core/config.py` to ensure consistent environment setup.
-- Document new commands or workflows by appending to the relevant sections above to keep this guide authoritative.
+- When adding a new route, place it in a dedicated module under `src/api/routes/`, export the router, and include it inside `src/api/api.py`
+- Extend `src/models/` with new SQLAlchemy models and keep Pydantic schemas colocated when practical to avoid missing imports
+- Mirror configuration changes across `.env`, `.env.example`, and `src/core/config.py` to ensure consistent environment setup
+- Document new commands or workflows by appending to the relevant sections above to keep this guide authoritative
 
 ## **Important Notes**
 

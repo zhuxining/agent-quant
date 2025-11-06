@@ -2,17 +2,13 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends
 from pydantic import UUID7, BaseModel, ConfigDict, Field
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
+from core.deps import CurrentUserDep, SessionDep
 from src import models
-from src.api import deps
-from src.models import Post, User
+from src.models import Post
 from src.utils.exceptions import ForbiddenException, NotFoundException
 from src.utils.responses import ResponseEnvelope, success_response
-
-SessionDep = Annotated[AsyncSession, Depends(deps.get_db)]
-CurrentUserDep = Annotated[User, Depends(deps.current_active_user)]
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 

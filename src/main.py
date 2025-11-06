@@ -8,8 +8,8 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.routing import APIRoute
 from loguru import logger
 
+from core.deps import create_user
 from src.api.api import api_router
-from src.api.deps import create_user
 from src.core.config import settings
 from src.core.db import create_db_and_tables
 from src.utils.exceptions import register_exception_handlers

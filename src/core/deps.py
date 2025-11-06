@@ -53,7 +53,7 @@ async def get_user_db(
 	from src.models.user import (
 		OAuthAccount,
 		User,
-	)  # Import here to avoid circular dependency
+	)
 
 	yield SQLAlchemyUserDatabase(session, User, OAuthAccount)
 
@@ -88,6 +88,8 @@ current_superuser = fastapi_users.current_user(active=True, superuser=True)
 get_async_session_context = contextlib.asynccontextmanager(get_db)
 get_user_db_context = contextlib.asynccontextmanager(get_user_db)
 get_user_manager_context = contextlib.asynccontextmanager(get_user_manager)
+
+CurrentUserDep = Annotated[User, Depends(current_active_user)]
 
 
 async def create_user(email: str, password: str, is_superuser: bool = False):

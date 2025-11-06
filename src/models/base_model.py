@@ -1,32 +1,32 @@
 import uuid
 from datetime import datetime
 
-from sqlmodel import Column, DateTime, Field, SQLModel, func
+from sqlmodel import Field, SQLModel, func
 
 
 class BaseModel(SQLModel):
 	__abstract__ = True
 
 	id: uuid.UUID = Field(
-		default_factory=uuid.UUID,
+		default_factory=uuid.uuid4,
 		primary_key=True,
 		sa_column_kwargs={"comment": "主键ID, UUID v7"},
 	)
 	created_at: datetime | None = Field(
 		default=None,
-		sa_column=Column(
-			DateTime(timezone=True),
-			server_default=func.current_timestamp(),
-			comment="创建时间, timestamptz",
-		),
+		sa_column_kwargs={
+			"server_default": func.current_timestamp(),
+			"comment": "创建时间, timestamptz",
+			"nullable": True,
+		},
 	)
 	updated_at: datetime | None = Field(
 		default=None,
-		sa_column=Column(
-			DateTime(timezone=True),
-			onupdate=func.current_timestamp(),
-			comment="更新时间, timestamptz",
-		),
+		sa_column_kwargs={
+			"onupdate": func.current_timestamp(),
+			"comment": "更新时间, timestamptz",
+			"nullable": True,
+		},
 	)
 	is_deleted: bool = Field(
 		default=False,
@@ -34,5 +34,8 @@ class BaseModel(SQLModel):
 	)
 	deleted_at: datetime | None = Field(
 		default=None,
-		sa_column=Column(DateTime(timezone=True), comment="删除时间, timestamptz"),
+		sa_column_kwargs={
+			"comment": "删除时间, timestamptz",
+			"nullable": True,
+		},
 	)
