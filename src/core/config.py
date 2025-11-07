@@ -51,6 +51,15 @@ class Settings(BaseSettings):
 
 	# Logging
 	LOG_LEVEL: str = "INFO"
+	NOTIFIER_WEBHOOK_URL: str | None = None
+	NOTIFIER_TIMEOUT: float = 5.0
+	SMTP_HOST: str | None = None
+	SMTP_PORT: int = 587
+	SMTP_USERNAME: str | None = None
+	SMTP_PASSWORD: str | None = None
+	SMTP_USE_TLS: bool = True
+	SMTP_FROM: str | None = None
+	SMTP_RECIPIENTS: Annotated[list[str] | str, BeforeValidator(parse_cors)] = []
 
 	# Database Settings
 	SQLITE_URL: str = "sqlite+aiosqlite:///./local.db"
