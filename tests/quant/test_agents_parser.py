@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from quant.agents.parsers import parse_trade_suggestions
+from src.quant.agents.parsers import parse_trade_suggestions
 
 
 def test_parse_trade_suggestions_extracts_signals() -> None:

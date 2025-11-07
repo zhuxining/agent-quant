@@ -12,7 +12,7 @@ import pandas as pd
 import quantstats as qs
 from loguru import logger
 
-from quant.core.types import BacktestReport, TradeSignal
+from src.quant.core.types import BacktestReport, TradeSignal
 
 
 @dataclass(slots=True)

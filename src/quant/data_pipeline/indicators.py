@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from quant.core.interfaces import IndicatorCalculator
-from quant.core.types import IndicatorSnapshot, MarketBar
+from src.quant.core.interfaces import IndicatorCalculator
+from src.quant.core.types import IndicatorSnapshot, MarketBar
 
 
 class IndicatorService:

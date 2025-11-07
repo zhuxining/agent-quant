@@ -6,7 +6,7 @@ from collections.abc import Sequence
 
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
-from quant.core.types import AgentResponse, TradeSignal
+from src.quant.core.types import AgentResponse, TradeSignal
 
 
 class AgentSignalModel(BaseModel):

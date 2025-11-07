@@ -6,7 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import select
 
-from core.deps import CurrentUserDep, SessionDep, current_superuser
+from src.core.deps import CurrentUserDep, SessionDep, current_superuser
 from src.models import SymbolCreate, SymbolRead, SymbolRecord, SymbolUpdate, User
 from src.utils.exceptions import ConflictException, NotFoundException
 from src.utils.responses import ResponseEnvelope, success_response

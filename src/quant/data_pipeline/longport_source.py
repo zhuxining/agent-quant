@@ -8,8 +8,8 @@ from typing import Any
 
 from longport.openapi import AdjustType, Config, Period, QuoteContext
 
-from quant.core.interfaces import MarketDataSource
-from quant.core.types import MarketBar
+from src.quant.core.interfaces import MarketDataSource
+from src.quant.core.types import MarketBar
 
 
 class LongportMarketDataSource(MarketDataSource):

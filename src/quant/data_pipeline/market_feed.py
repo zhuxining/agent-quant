@@ -8,8 +8,8 @@ from typing import Any
 
 from longport.openapi import AdjustType, Period
 
-from quant.core.interfaces import MarketDataSource
-from quant.core.types import MarketBar
+from src.quant.core.interfaces import MarketDataSource
+from src.quant.core.types import MarketBar
 
 from .indicators import IndicatorService
 from .longport_source import interval_to_period

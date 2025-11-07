@@ -7,11 +7,11 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, ConfigDict
 
-from core.deps import CurrentUserDep
-from quant.accounts.models import Position
-from quant.accounts.repository import SQLModelAccountRepository
-from quant.accounts.services import AccountOverview, AccountService
-from quant.core.types import AccountSnapshot, ExecutedTrade
+from src.core.deps import CurrentUserDep
+from src.quant.accounts.models import Position
+from src.quant.accounts.repository import SQLModelAccountRepository
+from src.quant.accounts.services import AccountOverview, AccountService
+from src.quant.core.types import AccountSnapshot, ExecutedTrade
 from src.utils.responses import ResponseEnvelope, success_response
 
 router = APIRouter(prefix="/quant/accounts", tags=["quant-accounts"])

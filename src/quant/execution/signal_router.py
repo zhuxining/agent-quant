@@ -5,10 +5,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-from quant.core.types import TradeSignal
+from src.quant.core.types import TradeSignal
 
 if TYPE_CHECKING:
-	from quant.execution.logger import ExecutionLogger
+	from src.quant.execution.logger import ExecutionLogger
 
 
 class ConfidenceWeightedRouter:

@@ -6,9 +6,9 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 
-from quant.accounts.models import Account, Position
-from quant.core.interfaces import AccountRepository
-from quant.core.types import AccountSnapshot, ExecutedTrade, TradeSignal
+from src.quant.accounts.models import Account, Position
+from src.quant.core.interfaces import AccountRepository
+from src.quant.core.types import AccountSnapshot, ExecutedTrade, TradeSignal
 
 _EPSILON = 1e-9
 

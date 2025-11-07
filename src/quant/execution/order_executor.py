@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from quant.accounts.services import AccountService
-from quant.core.event_bus import EventBus
-from quant.core.types import AccountSnapshot, TradeSignal
+from src.quant.accounts.services import AccountService
+from src.quant.core.event_bus import EventBus
+from src.quant.core.types import AccountSnapshot, TradeSignal
 
 if TYPE_CHECKING:
-	from quant.execution.logger import ExecutionLogger
+	from src.quant.execution.logger import ExecutionLogger
 
 
 class OrderExecutorService:

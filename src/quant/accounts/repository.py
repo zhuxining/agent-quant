@@ -11,8 +11,8 @@ from threading import Lock
 from sqlalchemy import delete
 from sqlmodel import Session, select
 
-from quant.core.interfaces import AccountRepository
-from quant.core.types import AccountSnapshot, ExecutedTrade
+from src.quant.core.interfaces import AccountRepository
+from src.quant.core.types import AccountSnapshot, ExecutedTrade
 
 try:
     from src.models.account import AccountRecord, PositionRecord, TradeRecord

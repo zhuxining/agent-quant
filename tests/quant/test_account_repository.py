@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
 
-from quant.accounts.repository import SQLModelAccountRepository
-from quant.core.types import AccountSnapshot, ExecutedTrade, PositionSnapshot
+from src.quant.accounts.repository import SQLModelAccountRepository
+from src.quant.core.types import AccountSnapshot, ExecutedTrade, PositionSnapshot
 
 
 @pytest.fixture()

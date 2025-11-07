@@ -6,10 +6,10 @@ from typing import Any
 
 import pytest
 
-from quant.core.types import AgentResponse, PromptPayload, TradeSignal
-from quant.data_pipeline.symbols import SymbolRegistry
-from quant.scheduler.jobs import QuantScheduler, ScheduledJob
-from quant.scheduler.trading import TradingJobRunner
+from src.quant.core.types import AgentResponse, PromptPayload, TradeSignal
+from src.quant.data_pipeline.symbols import SymbolRegistry
+from src.quant.scheduler.jobs import QuantScheduler, ScheduledJob
+from src.quant.scheduler.trading import TradingJobRunner
 
 
 class SpyNotifier:

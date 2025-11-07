@@ -7,7 +7,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from quant.core.types import IndicatorSnapshot, MarketBar
+from src.quant.core.types import IndicatorSnapshot, MarketBar
 
 
 def _tail(values: Sequence[float | None], length: int) -> list[float]:

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable
 
-from quant.core.types import TradeSignal
+from src.quant.core.types import TradeSignal
 
 
 def parse_trade_suggestions(payload: str | bytes | None) -> list[TradeSignal]:

@@ -11,7 +11,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from loguru import logger
 
-from quant.core.interfaces import Notifier
+from src.quant.core.interfaces import Notifier
 
 Handler = Callable[[], Awaitable[None] | None]
 

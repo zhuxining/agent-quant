@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from loguru import logger
 
-from quant.core.types import AccountSnapshot, AgentResponse, PromptPayload, TradeSignal
+from src.quant.core.types import AccountSnapshot, AgentResponse, PromptPayload, TradeSignal
 
 
 class ExecutionLogger:

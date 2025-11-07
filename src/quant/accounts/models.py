@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from quant.core.types import AccountSnapshot, PositionSnapshot
+from src.quant.core.types import AccountSnapshot, PositionSnapshot
 
 
 @dataclass(slots=True)

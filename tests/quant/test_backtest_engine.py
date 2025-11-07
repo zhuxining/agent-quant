@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from quant.backtest.engine import BacktestEngineConfig, QuantstatsBacktestEngine
-from quant.core.types import TradeSignal
+from src.quant.backtest.engine import BacktestEngineConfig, QuantstatsBacktestEngine
+from src.quant.core.types import TradeSignal
 
 
 def test_quantstats_engine_generates_report(tmp_path: Path) -> None:

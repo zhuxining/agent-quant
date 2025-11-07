@@ -7,14 +7,14 @@ import json
 import pytest
 from loguru import logger
 
-from quant.agents import create_default_agent_runner
-from quant.core.types import PromptPayload
-from quant.data_pipeline.indicators import IndicatorService
-from quant.data_pipeline.longport_source import LongportMarketDataSource
-from quant.data_pipeline.market_feed import MarketDataService, PromptSnapshotService
-from quant.data_pipeline.snapshots import SnapshotAssembler
-from quant.data_pipeline.talib_calculator import TalibIndicatorCalculator
 from src.core.config import settings
+from src.quant.agents import create_default_agent_runner
+from src.quant.core.types import PromptPayload
+from src.quant.data_pipeline.indicators import IndicatorService
+from src.quant.data_pipeline.longport_source import LongportMarketDataSource
+from src.quant.data_pipeline.market_feed import MarketDataService, PromptSnapshotService
+from src.quant.data_pipeline.snapshots import SnapshotAssembler
+from src.quant.data_pipeline.talib_calculator import TalibIndicatorCalculator
 
 
 @pytest.mark.integration

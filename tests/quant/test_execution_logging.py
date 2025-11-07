@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from quant.core.types import (
+from src.quant.core.types import (
 	AccountSnapshot,
 	AgentResponse,
 	IndicatorSnapshot,
@@ -12,10 +12,10 @@ from quant.core.types import (
 	PromptPayload,
 	TradeSignal,
 )
-from quant.execution.order_executor import OrderExecutorService
-from quant.execution.signal_router import ConfidenceWeightedRouter
-from quant.prompting.agents import AgentCoordinator
-from quant.prompting.builder import PromptBuilderService
+from src.quant.execution.order_executor import OrderExecutorService
+from src.quant.execution.signal_router import ConfidenceWeightedRouter
+from src.quant.prompting.agents import AgentCoordinator
+from src.quant.prompting.builder import PromptBuilderService
 
 
 class SpyLogger:

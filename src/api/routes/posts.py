@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends
 from pydantic import UUID7, BaseModel, ConfigDict, Field
 from sqlmodel import select
 
-from core.deps import CurrentUserDep, SessionDep
 from src import models
+from src.core.deps import CurrentUserDep, SessionDep
 from src.models import Post
 from src.utils.exceptions import ForbiddenException, NotFoundException
 from src.utils.responses import ResponseEnvelope, success_response

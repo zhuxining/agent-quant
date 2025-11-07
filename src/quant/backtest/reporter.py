@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from quant.core.types import BacktestReport
+from src.quant.core.types import BacktestReport
 
 
 class BacktestReporter:

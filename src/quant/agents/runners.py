@@ -7,8 +7,8 @@ from typing import Any
 
 from openai import OpenAI
 
-from quant.core.interfaces import AgentRunner
-from quant.core.types import AgentResponse, PromptPayload
+from src.quant.core.interfaces import AgentRunner
+from src.quant.core.types import AgentResponse, PromptPayload
 
 from .client import DeepSeekClientConfig, create_deepseek_client
 from .parsers import parse_trade_suggestions

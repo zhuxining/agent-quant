@@ -9,7 +9,7 @@ from sqlalchemy import Column, DateTime
 from sqlalchemy.types import JSON
 from sqlmodel import Field, SQLModel
 
-from quant.core.types import AccountSnapshot, ExecutedTrade, PositionSnapshot
+from src.quant.core.types import AccountSnapshot, ExecutedTrade, PositionSnapshot
 from src.utils.utils import utc_now
 
 from .base_model import BaseModel

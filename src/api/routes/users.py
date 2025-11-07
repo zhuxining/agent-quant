@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from core.deps import current_active_user, fastapi_users
+from src.core.deps import current_active_user, fastapi_users
 from src.models import UserRead, UserUpdate
 from src.models.user import User
 from src.utils.responses import ResponseEnvelope, success_response

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from quant.agents.runners import OpenAITradeAgent
-from quant.core.types import PromptPayload
+from src.quant.agents.runners import OpenAITradeAgent
+from src.quant.core.types import PromptPayload
 
 
 @dataclass

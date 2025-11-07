@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import pytest
 
-from quant.accounts.models import Position
-from quant.accounts.repository import InMemoryAccountRepository
-from quant.accounts.services import (
+from src.quant.accounts.models import Position
+from src.quant.accounts.repository import InMemoryAccountRepository
+from src.quant.accounts.services import (
 	AccountService,
 	InsufficientFundsError,
 	InvalidSignalError,
 	PositionShortfallError,
 )
-from quant.core.types import TradeSignal
+from src.quant.core.types import TradeSignal
 
 
 def _make_service() -> AccountService:

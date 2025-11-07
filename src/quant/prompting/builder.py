@@ -5,13 +5,13 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
-from quant.core.types import AccountSnapshot, IndicatorSnapshot, MarketBar, PromptPayload
+from src.quant.core.types import AccountSnapshot, IndicatorSnapshot, MarketBar, PromptPayload
 
 from .context import DecisionContext, PositionInfo
 from .formatters import format_decimal, format_market_snapshot, now_minutes_since
 
 if TYPE_CHECKING:
-	from quant.execution.logger import ExecutionLogger
+	from src.quant.execution.logger import ExecutionLogger
 
 
 class PromptBuilderService:

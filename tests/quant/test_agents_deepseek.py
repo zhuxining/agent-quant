@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from quant.agents import DeepSeekClientConfig
-from quant.agents.runners import OpenAITradeAgent, create_default_agent_runner
-from quant.core.types import PromptPayload
+from src.quant.agents import DeepSeekClientConfig
+from src.quant.agents.runners import OpenAITradeAgent, create_default_agent_runner
+from src.quant.core.types import PromptPayload
 
 
 @dataclass

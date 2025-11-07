@@ -5,11 +5,11 @@ from __future__ import annotations
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING
 
-from quant.core.interfaces import AgentRunner
-from quant.core.types import AgentResponse, PromptPayload
+from src.quant.core.interfaces import AgentRunner
+from src.quant.core.types import AgentResponse, PromptPayload
 
 if TYPE_CHECKING:
-	from quant.execution.logger import ExecutionLogger
+	from src.quant.execution.logger import ExecutionLogger
 
 
 class AgentCoordinator:

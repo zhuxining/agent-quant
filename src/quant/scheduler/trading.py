@@ -8,10 +8,10 @@ from typing import Any
 
 from loguru import logger
 
-from quant.core.interfaces import AgentRunner, Notifier, OrderExecutor, SignalRouter
-from quant.core.types import PromptPayload
-from quant.data_pipeline.market_feed import PromptSnapshotService
-from quant.data_pipeline.symbols import SymbolRegistry
+from src.quant.core.interfaces import AgentRunner, Notifier, OrderExecutor, SignalRouter
+from src.quant.core.types import PromptPayload
+from src.quant.data_pipeline.market_feed import PromptSnapshotService
+from src.quant.data_pipeline.symbols import SymbolRegistry
 
 
 @dataclass(slots=True)

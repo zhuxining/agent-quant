@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import talib
 
-from quant.core.interfaces import IndicatorCalculator
-from quant.core.types import IndicatorSnapshot, MarketBar
+from src.quant.core.interfaces import IndicatorCalculator
+from src.quant.core.types import IndicatorSnapshot, MarketBar
 
 
 class TalibIndicatorCalculator(IndicatorCalculator):

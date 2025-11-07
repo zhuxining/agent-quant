@@ -4,8 +4,8 @@ from pathlib import Path
 
 from sqlmodel import Session, SQLModel, create_engine
 
-from quant.data_pipeline.symbols import DatabaseSymbolRegistry
 from src.models.symbol import SymbolCreate, SymbolRecord
+from src.quant.data_pipeline.symbols import DatabaseSymbolRegistry
 
 
 def test_database_symbol_registry_refresh(tmp_path: Path) -> None:
