@@ -3,15 +3,22 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING
 
 from quant.core.types import AccountSnapshot, IndicatorSnapshot, MarketBar, PromptPayload
 
 from .context import DecisionContext, PositionInfo
 from .formatters import format_decimal, format_market_snapshot, now_minutes_since
 
+if TYPE_CHECKING:
+	from quant.execution.logger import ExecutionLogger
+
 
 class PromptBuilderService:
 	"""Legacy prompt builder used for indicator summarisation."""
+
+	def __init__(self, logger: ExecutionLogger | None = None) -> None:
+		self._logger = logger
 
 	def build(
 		self,
@@ -44,7 +51,10 @@ class PromptBuilderService:
 			"strategy_params": dict(strategy_params or {}),
 			"indicator_count": len(indicators.values),
 		}
-		return PromptPayload(content="\n".join(lines), metadata=metadata)
+		payload = PromptPayload(content="\n".join(lines), metadata=metadata)
+		if self._logger:
+			self._logger.log_prompt(payload)
+		return payload
 
 
 def build_system_prompt(account_equity: float) -> str:

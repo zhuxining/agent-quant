@@ -1,5 +1,6 @@
 from .account import AccountRecord, PositionRecord, TradeRecord
 from .post import Post, PostBase, PostCreate, PostRead, PostUpdate
+from .symbol import SymbolCreate, SymbolRead, SymbolRecord, SymbolUpdate
 from .user import User, UserCreate, UserRead, UserUpdate
 
 __all__ = [
@@ -15,4 +16,8 @@ __all__ = [
 	"AccountRecord",
 	"PositionRecord",
 	"TradeRecord",
+	"SymbolRecord",
+	"SymbolCreate",
+	"SymbolUpdate",
+	"SymbolRead",
 ]
