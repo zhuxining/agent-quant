@@ -38,11 +38,11 @@ class Settings(BaseSettings):
 	# Database Settings
 	DATABASE_TYPE: Literal["postgresql", "sqlite"] = "sqlite"
 	SQLITE_URL: str = "sqlite+aiosqlite:///./local.db"
-	POSTGRES_SERVER: str = "localhost"
+	POSTGRES_SERVER: str = ""
 	POSTGRES_PORT: int = 5432
-	POSTGRES_DB: str = "app"
-	POSTGRES_USER: str = "postgres"
-	POSTGRES_PASSWORD: str = "postgres"
+	POSTGRES_DB: str = ""
+	POSTGRES_USER: str = ""
+	POSTGRES_PASSWORD: str = ""
 
 	# Security Settings
 	BACKEND_CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_cors)] = []  # CORS
@@ -59,6 +59,18 @@ class Settings(BaseSettings):
 	PROJECT_NAME: str = pyproject.get("project", {}).get("name")
 	VERSION: str = pyproject.get("project", {}).get("version")
 	DESCRIPTION: str = pyproject.get("project", {}).get("description")
+
+	# LLMAgent
+	DEEPSEEK_API_BASE_URL: str = "https://api.deepseek.com/"
+	DEEPSEEK_API_KEY: str = ""
+
+	KIMI_API_BASE_URL: str = "https://api.moonshot.cn/v1"
+	KIMI_API_KEY: str = ""
+
+	# Longport
+	LONGPORT_APP_KEY: str = ""
+	LONGPORT_APP_SECRET: str = ""
+	LONGPORT_ACCESS_TOKEN: str = ""
 
 	@computed_field
 	@property
