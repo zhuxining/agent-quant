@@ -8,10 +8,10 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.routing import APIRoute
 from loguru import logger
 
-from app.api.api import api_router
-from app.api.deps import create_user
+from app.api import api_router
 from app.core.config import settings
 from app.core.db import create_db_and_tables
+from app.core.deps import create_user
 from app.utils.exceptions import register_exception_handlers
 from app.utils.logging import RequestLoggingMiddleware, setup_logging
 
@@ -36,7 +36,9 @@ def custom_generate_unique_id(route: APIRoute):
 app = FastAPI(
 	title=settings.PROJECT_NAME,
 	description=settings.DESCRIPTION,
-	openapi_url=f"{settings.API_V1_STR}/openapi.json",
+	openapi_url=f"{settings.API_V1_STR}/openapi.json" if settings.SWAGGER_UI_ENABLED else None,
+	docs_url="/docs" if settings.SWAGGER_UI_ENABLED else None,
+	redoc_url="/redoc" if settings.SWAGGER_UI_ENABLED else None,
 	version=settings.VERSION,
 	lifespan=lifespan,
 	generate_unique_id_function=custom_generate_unique_id,

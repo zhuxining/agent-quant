@@ -8,7 +8,7 @@ class BaseModel(SQLModel):
 	__abstract__ = True
 
 	id: uuid.UUID = Field(
-		default_factory=uuid.uuid7,
+		default_factory=uuid.UUID,
 		primary_key=True,
 		sa_column_kwargs={"comment": "主键ID, UUID v7"},
 	)

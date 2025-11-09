@@ -1,20 +1,17 @@
 from typing import Annotated, Literal
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from pydantic import UUID7, BaseModel, ConfigDict, Field
-from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import BaseModel, ConfigDict, Field
 from sqlmodel import select
 
 from app import models
-from app.api import deps
-from app.models import Post, User
+from app.core.deps import CurrentUserDep, SessionDep
+from app.models import Post
 from app.utils.exceptions import ForbiddenException, NotFoundException
 from app.utils.responses import ResponseEnvelope, success_response
 
-SessionDep = Annotated[AsyncSession, Depends(deps.get_db)]
-CurrentUserDep = Annotated[User, Depends(deps.current_active_user)]
-
-router = APIRouter(prefix="/posts", tags=["posts"])
+router = APIRouter(prefix="/post", tags=["post"])
 
 
 @router.post("/", response_model=ResponseEnvelope[models.PostRead])
@@ -60,7 +57,7 @@ async def read_posts(
 async def read_post(
 	*,
 	db: SessionDep,
-	post_id: UUID7,
+	post_id: UUID,
 	current_user: CurrentUserDep,
 ):
 	result = await db.execute(select(Post).where(Post.id == post_id))
@@ -75,7 +72,7 @@ async def read_post(
 async def update_post(
 	*,
 	db: SessionDep,
-	post_id: UUID7,
+	post_id: UUID,
 	post_in: models.PostUpdate,
 	current_user: CurrentUserDep,
 ):
@@ -101,7 +98,7 @@ async def update_post(
 async def delete_post(
 	*,
 	db: SessionDep,
-	post_id: UUID7,
+	post_id: UUID,
 	current_user: CurrentUserDep,
 ):
 	result = await db.execute(select(Post).where(Post.id == post_id))
