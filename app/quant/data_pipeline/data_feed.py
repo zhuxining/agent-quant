@@ -9,13 +9,8 @@ from typing import Any, cast
 
 import pandas as pd
 from longport.openapi import AdjustType, Period
-
-try:  # 允许在模块内通过 python path 直接运行
-	from .longport_source import LongportSource
-	from .talib_calculator import IndicatorCalculator
-except ImportError:  # pragma: no cover - fallback 用于 notebook/playground
-	from longport_source import LongportSource  # type: ignore
-	from talib_calculator import IndicatorCalculator  # type: ignore
+from longport_source import LongportSource
+from talib_calculator import IndicatorCalculator
 
 DEFAULT_LONG_TERM_COUNT = 200
 DEFAULT_SHORT_TERM_COUNT = 240
@@ -161,7 +156,6 @@ class DataFeed:
 
 	def _render_prompt(self, symbol: str, short_term: FeedSlice, long_term: FeedSlice) -> str:
 		latest = short_term.latest
-		mid_price_column = self.indicator_calculator.mid_price_column
 		volume_series = cast(pd.Series, long_term.frame["volume"])
 		lines = [
 			f"** {symbol} **",
@@ -175,7 +169,7 @@ class DataFeed:
 			"",
 			"**short-term context (1-h timeframe):**",
 			"",
-			f"Mid prices: {self._format_series(short_term.frame[mid_price_column], digits=1)}",
+			f"Mid prices: {self._format_series(short_term.frame['mid_price'])}",
 			f"EMA indicators (20-period): {self._format_series(short_term.frame['ema_20'])}",
 			f"MACD indicators: {self._format_series(short_term.frame['macd'])}",
 			f"RSI indicators (7-Period): {self._format_series(short_term.frame['rsi_7'])}",

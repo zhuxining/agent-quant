@@ -22,8 +22,8 @@ class IndicatorCalculator:
 		close_column: str = "close",
 		high_column: str = "high",
 		low_column: str = "low",
-		mid_price_column: str = "mid_price",
 	):
+
 		self.change_periods = tuple(change_periods or (1, 5))
 		self.ema_periods = tuple(ema_periods or (20, 50))
 		self.rsi_periods = tuple(rsi_periods or (7, 14))
@@ -34,14 +34,6 @@ class IndicatorCalculator:
 		self.close_column = close_column
 		self.high_column = high_column
 		self.low_column = low_column
-		self.mid_price_column = mid_price_column
-
-	def compute_mid_price(self, frame: pd.DataFrame) -> pd.DataFrame:
-		"""计算高低价均值，生成中间价列."""
-		self._ensure_columns(frame, [self.high_column, self.low_column])
-		result = frame.copy()
-		result[self.mid_price_column] = (result[self.high_column] + result[self.low_column]) / 2
-		return result
 
 	def compute_change(self, frame: pd.DataFrame) -> pd.DataFrame:
 		"""计算多周期涨幅（ROCP），返回小数形式(0.02 = 2%)."""
@@ -50,6 +42,16 @@ class IndicatorCalculator:
 		close = self._column_as_ndarray(result, self.close_column)
 		for period in self.change_periods:
 			result[f"change_pct_{period}"] = talib.ROCP(close, timeperiod=period)
+		return result
+
+	def compute_mid_price(self, frame: pd.DataFrame) -> pd.DataFrame:
+		"""计算高低价均值，生成中间价列."""
+		self._ensure_columns(frame, [self.high_column, self.low_column])
+		result = frame.copy()
+		high = self._column_as_ndarray(result, self.high_column)
+		low = self._column_as_ndarray(result, self.low_column)
+		# close = self._column_as_ndarray(result, self.close_column)
+		result["mid_price"] = talib.MIDPRICE(high, low, timeperiod=2)
 		return result
 
 	def compute_ema(self, frame: pd.DataFrame) -> pd.DataFrame:
