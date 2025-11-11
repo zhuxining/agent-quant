@@ -10,10 +10,11 @@ import talib
 
 
 class IndicatorCalculator:
-	"""计算 EMA, MACD, RSI, and ATR 等指标."""
+	"""计算涨幅, EMA, MACD, RSI, ATR 等指标."""
 
 	def __init__(
 		self,
+		change_periods: Sequence[int] | None = None,
 		ema_periods: Sequence[int] | None = None,
 		rsi_periods: Sequence[int] | None = None,
 		atr_periods: Sequence[int] | None = None,
@@ -21,7 +22,9 @@ class IndicatorCalculator:
 		close_column: str = "close",
 		high_column: str = "high",
 		low_column: str = "low",
+		mid_price_column: str = "mid_price",
 	):
+		self.change_periods = tuple(change_periods or (1, 5))
 		self.ema_periods = tuple(ema_periods or (20, 50))
 		self.rsi_periods = tuple(rsi_periods or (7, 14))
 		self.atr_periods = tuple(atr_periods or (3, 14))
@@ -31,6 +34,23 @@ class IndicatorCalculator:
 		self.close_column = close_column
 		self.high_column = high_column
 		self.low_column = low_column
+		self.mid_price_column = mid_price_column
+
+	def compute_mid_price(self, frame: pd.DataFrame) -> pd.DataFrame:
+		"""计算高低价均值，生成中间价列."""
+		self._ensure_columns(frame, [self.high_column, self.low_column])
+		result = frame.copy()
+		result[self.mid_price_column] = (result[self.high_column] + result[self.low_column]) / 2
+		return result
+
+	def compute_change(self, frame: pd.DataFrame) -> pd.DataFrame:
+		"""计算多周期涨幅（ROCP），返回小数形式(0.02 = 2%)."""
+		self._ensure_columns(frame, [self.close_column])
+		result = frame.copy()
+		close = self._column_as_ndarray(result, self.close_column)
+		for period in self.change_periods:
+			result[f"change_pct_{period}"] = talib.ROCP(close, timeperiod=period)
+		return result
 
 	def compute_ema(self, frame: pd.DataFrame) -> pd.DataFrame:
 		"""使用 TA-Lib 计算多周期 EMA, 返回附加指标列后的 DataFrame."""
