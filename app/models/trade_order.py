@@ -1,4 +1,3 @@
-import uuid
 from decimal import Decimal
 from enum import StrEnum
 from typing import Any, ClassVar
@@ -20,16 +19,14 @@ class OrderType(StrEnum):
 
 class TradeOrderStatus(StrEnum):
 	PENDING = "pending"
-	SUBMITTED = "submitted"
 	FILLED = "filled"
-	PARTIALLY_FILLED = "partially_filled"
 	CANCELLED = "cancelled"
 	FAILED = "failed"
 
 
 class TradeOrderBase(SQLModel):
-	account_id: uuid.UUID = Field(sa_column_kwargs={"comment": "下单账户ID"})
-	stock_id: uuid.UUID = Field(sa_column_kwargs={"comment": "标的股票ID"})
+	account_number: str = Field(sa_column_kwargs={"comment": "下单账户号"})
+	symbol_exchange: str = Field(sa_column_kwargs={"comment": "标的股票"})
 	side: OrderSide = Field(sa_column_kwargs={"comment": "买卖方向"})
 	order_type: OrderType = Field(
 		default=OrderType.MARKET, sa_column_kwargs={"comment": "订单类型 (市价/限价)"}
@@ -42,12 +39,6 @@ class TradeOrderBase(SQLModel):
 	executed_quantity: int = Field(default=0, ge=0, sa_column_kwargs={"comment": "已成交数量"})
 	average_price: Decimal | None = Field(
 		default=None, sa_column_kwargs={"comment": "成交均价 (如有)"}
-	)
-	external_order_id: str | None = Field(
-		default=None, sa_column_kwargs={"comment": "券商返回的订单号"}
-	)
-	time_in_force: str | None = Field(
-		default=None, sa_column_kwargs={"comment": "订单有效期 (TIF)"}
 	)
 	notes: str | None = Field(default=None, sa_column_kwargs={"comment": "订单备注"})
 

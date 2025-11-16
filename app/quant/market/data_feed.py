@@ -5,12 +5,14 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from typing import Any, cast
 
 import pandas as pd
 from longport.openapi import AdjustType, Period
-from longport_source import LongportSource
-from talib_calculator import IndicatorCalculator
+
+from .longport_source import LongportSource
+from .talib_calculator import IndicatorCalculator
 
 DEFAULT_LONG_TERM_COUNT = 200
 DEFAULT_SHORT_TERM_COUNT = 240
@@ -124,6 +126,28 @@ class DataFeed:
 			end_date=end_date,
 		)
 		return self._render_prompt(symbol, slices["short_term"], slices["long_term"])
+
+	def get_latest_price(
+		self,
+		symbol: str,
+		*,
+		adjust: Any = DEFAULT_ADJUST,
+		end_date: datetime | None = None,
+	) -> Decimal | None:
+		"""Return the most recent close price from short-term data."""
+
+		slice_ = self.build_short_term(
+			symbol=symbol,
+			count=1,
+			adjust=adjust,
+			end_date=end_date,
+		)
+		if slice_.frame.empty:
+			return None
+		latest_close = slice_.latest.get("close")
+		if latest_close is None:
+			return None
+		return Decimal(str(latest_close))
 
 	def _build_slice(
 		self,

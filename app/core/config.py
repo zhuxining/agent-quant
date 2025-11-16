@@ -61,9 +61,11 @@ class Settings(BaseSettings):
 	DESCRIPTION: str = pyproject.get("project", {}).get("description")
 
 	# LLMAgent
+	DEEPSEEK_MODEL: str = ""
 	DEEPSEEK_API_BASE_URL: str = "https://api.deepseek.com/"
 	DEEPSEEK_API_KEY: str = ""
 
+	KIMI_MODEL: str = ""
 	KIMI_API_BASE_URL: str = "https://api.moonshot.cn/v1"
 	KIMI_API_KEY: str = ""
 

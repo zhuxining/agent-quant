@@ -8,12 +8,12 @@ from .base_model import BaseModel
 
 class TradeAccountBase(SQLModel):
 	name: str = Field(sa_column_kwargs={"comment": "交易账户名称"})
-	broker: str | None = Field(default=None, sa_column_kwargs={"comment": "券商/渠道标识"})
-	account_number: str | None = Field(default=None, sa_column_kwargs={"comment": "券商账户号"})
-	currency: str = Field(default="USD", sa_column_kwargs={"comment": "账户币种"})
+	account_number: str = Field(
+		index=True, sa_column_kwargs={"comment": "交易账户号", "unique": True}
+	)
 	balance: Decimal = Field(default=Decimal("0"), sa_column_kwargs={"comment": "可用余额"})
 	buying_power: Decimal = Field(default=Decimal("0"), sa_column_kwargs={"comment": "可用购买力"})
-	leverage: float = Field(default=1.0, gt=0, sa_column_kwargs={"comment": "杠杆倍数"})
+	realized_pnl: Decimal = Field(default=Decimal("0"), sa_column_kwargs={"comment": "已实现盈亏"})
 	is_active: bool = Field(default=True, sa_column_kwargs={"comment": "是否启用"})
 	description: str | None = Field(default=None, sa_column_kwargs={"comment": "备注说明"})
 

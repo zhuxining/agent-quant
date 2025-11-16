@@ -56,11 +56,11 @@
 
 ## `app/quant`说明
 
-- `/data_pipeline`:通过longport获取股票市场数据，用ta-lib计算RSI、MACD等技术指标。
+- `/market`:通过longport获取股票市场数据，用ta-lib计算RSI、MACD等技术指标。
 - `/prompting`:配置System Prompt，将市场数据、技术指标、账户信息等组装成User Prompt。
 - `/agent`:初始化DeepSeek、Kimi等Agent Trader，输出分析结果与交易信号。
-- `/execution`:调用Agent，处理交易信号，执行交易，记录交易订单，更新账户。
-- `/account`:管理账户。
+- `/execution`:调用Agent，处理交易信号，执行交易。
+- `/trade`:记录交易订单，更新账户。
 - Quant日志都记录在`./logs`下，`market/`记录市场数据与指标，`agent/`记录输入的Prompt与输出、`trade/`记录交易与账户信息。
 
 ### 相关的数据库模型
@@ -68,6 +68,7 @@
 - `/models/stock`:股票列表
 - `/models/trade_order`:交易订单
 - `/models/trade_account`:交易账户
+- `/models/position`:持仓信息
 - `/models/logs`:日志
 
 ## **Important Notes**
