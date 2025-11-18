@@ -1,5 +1,9 @@
 from contextlib import asynccontextmanager
 
+from agno.agent import Agent
+from agno.models.deepseek import DeepSeek
+from agno.os import AgentOS
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -33,7 +37,7 @@ def custom_generate_unique_id(route: APIRoute):
 	return f"{route.tags[0]}-{route.name}"
 
 
-app = FastAPI(
+app: FastAPI = FastAPI(
 	title=settings.PROJECT_NAME,
 	description=settings.DESCRIPTION,
 	openapi_url=f"{settings.API_V1_STR}/openapi.json" if settings.SWAGGER_UI_ENABLED else None,
@@ -46,7 +50,6 @@ app = FastAPI(
 )
 register_exception_handlers(app)
 
-# CORS middleware
 if settings.all_cors_origins:
 	app.add_middleware(
 		CORSMiddleware,
@@ -63,5 +66,14 @@ if settings.ENVIRONMENT == "prod":
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)
 
-# Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+load_dotenv()
+agent = Agent(model=DeepSeek(id="deepseek-chat"), markdown=True)
+agent_os = AgentOS(
+	agents=[agent],
+	base_app=app,
+)
+
+app = agent_os.get_app()

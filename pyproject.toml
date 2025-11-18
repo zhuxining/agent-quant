@@ -19,6 +19,8 @@ dependencies = [
     "openai>=2.8.0",
     "quantstats>=0.0.77",
     "apscheduler>=3.10.4",
+    "agno>=2.2.13",
+    "mcp>=1.21.2",
 ]
 
 [dependency-groups]
