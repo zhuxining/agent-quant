@@ -156,11 +156,11 @@ async def ensure_stocks(session, seeds: Sequence[StockSeed]) -> list[Stock]:
 
 
 def pick_trader() -> tuple[TraderFn, str]:
-	if settings.KIMI_API_KEY:
+	if settings.KIMI_API_KEY and settings.KIMI_MODEL:
 		return kimi_trader, "Kimi"
-	if settings.DEEPSEEK_API_KEY:
+	if settings.DEEPSEEK_API_KEY and settings.DEEPSEEK_MODEL:
 		return deepseek_trader, "DeepSeek"
-	msg = "请配置 KIMI_API_KEY 或 DEEPSEEK_API_KEY 后再运行"
+	msg = "请配置 KIMI/DEEPSEEK 的 API_KEY 与 MODEL 后再运行"
 	raise RuntimeError(msg)
 
 
