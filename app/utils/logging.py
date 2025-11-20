@@ -29,7 +29,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 		super().__init__(app)
 
 	async def dispatch(self, request: Request, call_next):
-		request_id = uuid.uuid4().hex
+		request_id = uuid.uuid7().hex
 		token = request_id_ctx_var.set(request_id)
 		request.state.request_id = request_id
 

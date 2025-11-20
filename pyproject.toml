@@ -3,24 +3,23 @@ name = "Agent-Quant"
 version = "0.1.0"
 description = "Get data, build prompt, LLM agent trading signal, simulated trading"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "fastapi>=0.121.2",
-    "granian[dotenv,pname,uvloop,reload]>=2.5.7",
+    "granian[dotenv,pname,uvloop,reload]>=2.6.0",
     "pydantic>=2.12.4",
     "pydantic-settings>=2.12.0",
     "sqlmodel>=0.0.27",
     "loguru>=0.7.3",
     "fastapi-users[oauth,sqlalchemy]>=15.0.1",
     "asyncpg>=0.30.0",
-    "longport>=3.0.17",
+    "longport>=3.0.18",
     "ta-lib>=0.6.8",
     "pandas>=2.3.3",
-    "openai>=2.8.0",
     "quantstats>=0.0.77",
     "apscheduler>=3.10.4",
-    "agno>=2.2.13",
-    "mcp>=1.21.2",
+    "agno[openai]>=2.2.13",
+
 ]
 
 [dependency-groups]
@@ -55,7 +54,7 @@ unsafe-fixes = true
 [tool.ruff.lint]
 future-annotations = true
 select = [
-    "E",   # pycodestyle
+    "E",   # pycodestyle errors
     "F",   # Pyflakes
     "UP",  # pyupgrade
     "B",   # flake8-bugbear
