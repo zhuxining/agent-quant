@@ -15,11 +15,11 @@ from app.models import (
 	TradeOrder,
 	TradeOrderStatus,
 )
-from app.quant.trade.account import (
+from app.trade.account import (
 	AccountSnapshot,
 	apply_order_settlement,
 )
-from app.quant.trade.position import (
+from app.trade.position import (
 	apply_buy_to_position,
 	apply_sell_to_position,
 	calculate_realized_pnl,

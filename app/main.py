@@ -1,7 +1,5 @@
 from contextlib import asynccontextmanager
 
-from agno.agent import Agent
-from agno.models.deepseek import DeepSeek
 from agno.os import AgentOS
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -12,6 +10,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.routing import APIRoute
 from loguru import logger
 
+from app.agent.agno_client import get_quant_agent
 from app.api import api_router
 from app.core.config import settings
 from app.core.db import create_db_and_tables
@@ -70,7 +69,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 load_dotenv()
-agent = Agent(model=DeepSeek(id="deepseek-chat"), markdown=True)
+agent = get_quant_agent()
 agent_os = AgentOS(
 	agents=[agent],
 	base_app=app,

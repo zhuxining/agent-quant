@@ -1,4 +1,4 @@
-from app.quant.agent.agno_client import run_quant_agent
+from app.agent.agno_client import run_quant_agent
 
 
 def kimi_trader(

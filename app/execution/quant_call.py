@@ -12,13 +12,13 @@ from typing import Any
 from loguru import logger
 from sqlalchemy import select
 
+from app.agent.trader import deepseek_trader, kimi_trader
 from app.core.config import settings
 from app.core.db import async_session_maker, create_db_and_tables
+from app.market.data_feed import DataFeed
 from app.models import OrderType, Stock, TradeAccount
-from app.quant.agent.trader import deepseek_trader, kimi_trader
-from app.quant.market.data_feed import DataFeed
-from app.quant.prompting.builder import SystemPromptProvider, UserPromptProvider
-from app.quant.trade.order import (
+from app.prompting.builder import SystemPromptProvider, UserPromptProvider
+from app.trade.order import (
 	OrderExecutionResult,
 	place_buy_order,
 	place_sell_order,

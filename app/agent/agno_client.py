@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Literal
 
 from agno.agent import Agent, RunOutput
@@ -36,7 +37,7 @@ def run_quant_agent(
 	"""Run quant agent via agno and return string content."""
 
 	selected_provider = provider or _default_provider()
-	agent = _build_agent(system_prompt, provider=selected_provider)
+	agent = build_agent(system_prompt, provider=selected_provider)
 	try:
 		result = agent.run(user_prompt)
 	except Exception as exc:
@@ -52,7 +53,37 @@ def run_quant_agent(
 		return str(result)
 
 
-def _build_agent(system_prompt: str, *, provider: Provider) -> Agent:
+def get_quant_agent() -> Agent:
+	"""Get the configured Quant Trader agent."""
+	provider = _default_provider()
+
+	# Load AGENTS.md content
+	agents_doc = _load_agents_doc()
+
+	# Default system prompt for the main agent instance
+	system_prompt = (
+		"You are a helpful quantitative trading assistant.\n"
+		"You have access to the following project documentation:\n\n"
+		f"{agents_doc}"
+	)
+	return build_agent(system_prompt, provider=provider)
+
+
+def _load_agents_doc() -> str:
+	"""Load the content of AGENTS.md."""
+	try:
+		# Assuming AGENTS.md is in the project root
+		project_root = Path(__file__).parent.parent.parent.parent
+		agents_doc_path = project_root / "AGENTS.md"
+		if agents_doc_path.exists():
+			return agents_doc_path.read_text(encoding="utf-8")
+		return ""
+	except Exception as e:
+		logger.warning(f"Failed to load AGENTS.md: {e}")
+		return ""
+
+
+def build_agent(system_prompt: str, *, provider: Provider) -> Agent:
 	model = _build_model(provider)
 	return Agent(
 		id=f"quant-trader-{provider}",

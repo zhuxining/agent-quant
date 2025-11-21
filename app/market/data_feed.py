@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, cast
+from typing import Any
 
 import pandas as pd
 from longport.openapi import AdjustType, Period
@@ -108,25 +107,6 @@ class DataFeed:
 			end_date=end_date,
 		)
 
-	def build_prompt(
-		self,
-		symbol: str,
-		long_term_count: int = DEFAULT_LONG_TERM_COUNT,
-		short_term_count: int = DEFAULT_SHORT_TERM_COUNT,
-		adjust: Any = DEFAULT_ADJUST,
-		end_date: datetime | None = None,
-	) -> str:
-		"""构建用于 Agent Prompt 的行情摘要文本。"""
-
-		slices = self.build(
-			symbol=symbol,
-			long_term_count=long_term_count,
-			short_term_count=short_term_count,
-			adjust=adjust,
-			end_date=end_date,
-		)
-		return self._render_prompt(symbol, slices["short_term"], slices["long_term"])
-
 	def get_latest_price(
 		self,
 		symbol: str,
@@ -177,90 +157,6 @@ class DataFeed:
 		enriched = self.indicator_calculator.compute_rsi(enriched)
 		enriched = self.indicator_calculator.compute_atr(enriched)
 		return enriched
-
-	def _render_prompt(self, symbol: str, short_term: FeedSlice, long_term: FeedSlice) -> str:
-		latest = short_term.latest
-		volume_series = cast(pd.Series, long_term.frame["volume"])
-		lines = [
-			f"** {symbol} **",
-			(
-				'"current_price = '
-				f"{self._format_number(latest['close'], 1)}, "
-				f"current_ema20 = {self._format_number(latest.get('ema_20'))}, "
-				f"current_macd = {self._format_number(latest.get('macd'))}, "
-				f'current_rsi (7 period) = {self._format_number(latest.get("rsi_7"))}"'
-			),
-			"",
-			"**short-term context (1-h timeframe):**",
-			"",
-			f"Mid prices: {self._format_series(short_term.frame['mid_price'])}",
-			f"EMA indicators (20-period): {self._format_series(short_term.frame['ema_20'])}",
-			f"MACD indicators: {self._format_series(short_term.frame['macd'])}",
-			f"RSI indicators (7-Period): {self._format_series(short_term.frame['rsi_7'])}",
-			f"RSI indicators (14-Period): {self._format_series(short_term.frame['rsi_14'])}",
-			"",
-			"**Longer-term context (1-day timeframe):**",
-			"",
-			(
-				"20-Period EMA: "
-				f"{self._format_number(long_term.latest.get('ema_20'))} vs. 50-Period EMA: "
-				f"{self._format_number(long_term.latest.get('ema_50'))}"
-			),
-			(
-				"3-Period ATR: "
-				f"{self._format_number(long_term.latest.get('atr_3'))} vs. 14-Period ATR: "
-				f"{self._format_number(long_term.latest.get('atr_14'))}"
-			),
-			(
-				"Current Volume: "
-				f"{self._format_number(long_term.latest.get('volume'))} vs. Average Volume: "
-				f"{self._format_number(self._mean(volume_series))}"
-			),
-			f"MACD indicators: {self._format_series(long_term.frame['macd'])}",
-			f"RSI indicators (14-Period): {self._format_series(long_term.frame['rsi_14'])}",
-		]
-		return "\n".join(lines)
-
-	@staticmethod
-	def _mean(series: pd.Series) -> float | None:
-		clean = series.dropna()
-		return float(clean.mean()) if not clean.empty else None
-
-	@staticmethod
-	def _format_series(
-		series: pd.Series | Iterable[float],
-		digits: int = 3,
-		count: int = 10,
-	) -> str:
-		if isinstance(series, pd.Series):
-			values = series.dropna().tail(count).tolist()
-		else:
-			values = list(series)
-		if not values:
-			return "[]"
-		formatted = ", ".join(f"{value:.{digits}f}" for value in values)
-		return f"[{formatted}]"
-
-	@staticmethod
-	def _format_number(value: Any, digits: int = 3) -> str:
-		number = DataFeed._coerce_number(value)
-		if number is None:
-			return "N/A"
-		return f"{number:.{digits}f}"
-
-	@staticmethod
-	def _coerce_number(value: Any) -> float | None:
-		if value is None:
-			return None
-		if isinstance(value, pd.Series):
-			if value.empty:
-				return None
-			value = value.iloc[-1]
-		if not pd.api.types.is_scalar(value):
-			return None
-		if pd.isna(value):
-			return None
-		return float(value)
 
 
 __all__ = [
