@@ -10,7 +10,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.routing import APIRoute
 from loguru import logger
 
-from app.agent.agno_client import get_quant_agent
+from app.agent import example_agent, trader_agent
 from app.api import api_router
 from app.core.config import settings
 from app.core.db import create_db_and_tables
@@ -67,11 +67,12 @@ app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-
-load_dotenv()
-agent = get_quant_agent()
+# ———————————— 加载Agent ———————————— #
+example_agent = example_agent("kimi")
+trader_agent = trader_agent()
 agent_os = AgentOS(
-	agents=[agent],
+	name="Quant Agent OS",
+	agents=[example_agent, trader_agent],
 	base_app=app,
 )
 

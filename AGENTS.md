@@ -7,14 +7,17 @@
 | 路径          | 角色说明         | 关键备注                                                                           |
 | ------------- | ---------------- | ---------------------------------------------------------------------------------- |
 | `app/main.py` | FastAPI 入口     | 创建应用实例并挂载所有路由。                                                       |
-| `app/core/`   | 配置与基础设施   | 统一管理配置(`config.py`)、数据库(`db.py`)以及共享依赖（数据库会话、鉴权上下文等） |
-| `app/api/`    | HTTP 对外接口    | `api.py` 汇总路由；`deps.py` 存放依赖；`routes/` 中按照功能划分子路由              |
-| `app/models/` | 领域与持久化模型 | `base_model.py` 定义 ORM 基类；`user.py`、`post.py` 等提供具体实体                 |
-| `app/quant/`  | Agent量化逻辑    | 获取市场数据，ta-lib计算指标，组装 Prompt，调用 Agent，产生交易信号，记录交易信息  |
-| `app/utils/`  | 跨层工具         | 提供可在多个模块复用的通用工具方法                                                 |
-| `tests/`      | 测试             | `conftest.py` 提供统一依赖覆盖；`tests/utils/` 存放测试专用工具                    |
-| `serve.py`    | 本地运行入口     | 通过 `uv` 启动应用的便捷脚本                                                       |
-| `logs/`       | 运行日志         | 应用写入的日志文件                                                                 |
+| `app/core/`   | 配置与基础设施   | 统一管理配置(`config.py`)、数据库(`db.py`)以及共享依赖（`deps.py`,数据库会话、鉴权上下文等） |
+| `app/models/`     | 数据库模型与API模型   |  使用SQLModel定义的数据库模型与 API 输出输出模型      |
+| `app/api/`       | HTTP 对外接口    | `__init__.py` 汇总路由；`routes/` 中按照功能划分子路由              |
+| `app/market/`    | 市场数据       | 获取市场数据,计算技术指标等            |
+| `app/agent/`     | Agent 核心     | 初始化各职能的Agent，包含prompt、输入输出结构定义                   |
+| `app/execution/` | 执行调度       | 调度 Agent 、Market、Trade                 |
+| `app/trade/`     | 交易账户       | 管理账户(`account.py`)、订单(`order.py`)与持仓(`position.py`)                      |
+| `app/utils/`     | 跨层工具       | 提供可在多个模块复用的通用工具方法                                                 |
+| `tests/`         | 测试           | `conftest.py` 提供统一依赖覆盖；`tests/utils/` 存放测试专用工具                    |
+| `serve.py`       | 本地运行入口   | 通过 `uv` 启动应用的便捷脚本                                                       |
+| `logs/`          | 运行日志       | 应用写入的日志文件                                                                 |
 
 ## 开发常用命令
 
@@ -30,7 +33,7 @@
 - Pydantic 模型基于 SQLModel/Pydantic v2 写法，`Create/Update` 仅暴露可写字段，`Read` 通过继承 `BaseModel` 追加只读字段和 ID，不需要配置 `model_config = ConfigDict(from_attributes=True)`。
 - 参考 `app/models/post.py` 的层次结构、注释与 `Field` 配置，新增模型时保持同样的注释、类型提示和 `sa_column_kwargs` 说明，以便数据库与文档同步。
 
-## 请求流程说明
+## API请求流程说明
 
 - 所有请求从 `app/api/routes/*` 进入，并在 `app/api/__init__.py` 中完成路由注册。
 - 共享依赖（数据库会话、鉴权上下文等）集中在 `app/core/deps.py`，通过依赖注入传入路由处理函数。
@@ -47,34 +50,24 @@
 - 需要授权的测试通过 `tests/utils/auth.py` 的 `get_auth_headers` 函数，从真实登录接口获取 JWT，确保鉴权链路与生产一致。
 - 如需自定义测试数据，请优先扩展工厂或局部 fixture，避免在测试中直接依赖生产环境状态。
 
-## 更新建议
+## API更新建议
 
 - 新增路由应放在 `app/api/routes/` 下的独立模块，导出 router，并在 `app/api/__init__.py` 中挂载。
 - 在 `app/models/` 中扩展新的 SQLModel/SQLAlchemy 实体，并尽量与对应的 Pydantic 模型同文件维护，避免遗漏导入。
 - 环境配置变更需同步更新 `.env`、`.env.example` 与 `app/core/config.py`，保持环境一致。
 - 新命令或工作流应补充在本文档对应段落，确保该指南始终准确。
 
-## `app/quant`说明
+## 代码生产规范
 
-- `/market`:通过longport获取股票市场数据，用ta-lib计算RSI、MACD等技术指标。
-- `/prompting`:配置System Prompt，将市场数据、技术指标、账户信息等组装成User Prompt。
-- `/agent`:初始化DeepSeek、Kimi等Agent Trader，输出分析结果与交易信号。
-- `/execution`:调用Agent，处理交易信号，执行交易。
-- `/trade`:记录交易订单，更新账户。
-- Quant日志都记录在`./logs`下，`market/`记录市场数据与指标，`agent/`记录输入的Prompt与输出、`trade/`记录交易与账户信息。
-
-### 相关的数据库模型
-
-- `/models/stock`:股票列表
-- `/models/trade_order`:交易订单
-- `/models/trade_account`:交易账户
-- `/models/position`:持仓信息
-- `/models/logs`:日志
+- 需遵循现有的路由组织模式。
+- 禁止使用已弃用的`typing`。
+- 生成或修改代码前，优先通过 MCP `context7` 获取官方最佳实践。
+- 完成修改后务必运行 `uv run ruff check --fix` 并清理警告。
 
 ## **Important Notes**
 
-- 需遵循现有的路由组织模式。
-- 禁用已废弃能力，优先采用 Python 3.13+ 与 Pydantic v2 推荐写法。
-- 生成或修改代码前，优先通过 MCP `context7` 获取官方最佳实践。
-- 完成修改后务必运行 `uv run ruff check --fix` 并清理警告。
-- 所有协作交流保持中文对话。
+- 所有的响应与回复用中文
+- 不要过度设计，保证代码简洁易懂，简单实用
+- 写代码时，要注意圈复杂度，代码尽可能复用
+- 写代码时，注意模块设计，尽量使用设计模式
+- 改动时最小化修改，尽量不修改到其他模块代码

@@ -37,7 +37,7 @@ class Settings(BaseSettings):
 
 	# Database Settings
 	DATABASE_TYPE: Literal["postgresql", "sqlite"] = "sqlite"
-	SQLITE_URL: str = "sqlite+aiosqlite:///./local.db"
+	SQLITE_URL: str = "tmp/local.db"
 	POSTGRES_SERVER: str = ""
 	POSTGRES_PORT: int = 5432
 	POSTGRES_DB: str = ""
@@ -61,12 +61,10 @@ class Settings(BaseSettings):
 	DESCRIPTION: str = pyproject.get("project", {}).get("description")
 
 	# LLMAgent
-	DEEPSEEK_MODEL: str = ""
-	DEEPSEEK_API_BASE_URL: str = "https://api.deepseek.com/"
+	DEEPSEEK_MODEL: str = "deepseek-chat"
 	DEEPSEEK_API_KEY: str = ""
 
-	KIMI_MODEL: str = ""
-	KIMI_API_BASE_URL: str = "https://api.moonshot.cn/v1"
+	KIMI_MODEL: str = "kimi-k2-0905-preview"
 	KIMI_API_KEY: str = ""
 
 	# Longport
