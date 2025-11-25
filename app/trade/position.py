@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +11,54 @@ from sqlmodel import select
 from app.models import Position, PositionSide, PositionStatus
 
 ZERO = Decimal("0")
+
+
+@dataclass(slots=True)
+class PositionSummary:
+	"""面向 Prompt/Workflow 的持仓概要。"""
+
+	symbol_exchange: str
+	side: PositionSide
+	quantity: int
+	available_quantity: int
+	average_cost: Decimal
+	market_price: Decimal | None
+	market_value: Decimal
+	unrealized_pnl: Decimal
+	realized_pnl: Decimal
+	profit_target: Decimal | None
+	stop_loss: Decimal | None
+	notes: str | None
+
+
+async def list_position_summaries(
+	session: AsyncSession, account_number: str
+) -> list[PositionSummary]:
+	"""查询账户当前持仓，转换为适合 Prompt 的结构。"""
+
+	statement = (
+		select(Position)
+		.where(Position.account_number == account_number)
+		.order_by(Position.symbol_exchange)
+	)
+	result = await session.execute(statement)
+	return [
+		PositionSummary(
+			symbol_exchange=position.symbol_exchange,
+			side=position.side,
+			quantity=position.quantity,
+			available_quantity=position.available_quantity,
+			average_cost=position.average_cost,
+			market_price=position.market_price,
+			market_value=position.market_value,
+			unrealized_pnl=position.unrealized_pnl,
+			realized_pnl=position.realized_pnl,
+			profit_target=position.profit_target,
+			stop_loss=position.stop_loss,
+			notes=position.notes,
+		)
+		for position in result.scalars().all()
+	]
 
 
 async def get_position_for_update(

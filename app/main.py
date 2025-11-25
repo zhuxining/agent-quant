@@ -13,7 +13,7 @@ from app.agent import example_agent, trader_agent
 from app.api import api_router
 from app.core.config import settings
 from app.core.db import create_db_and_tables
-from app.core.deps import create_user
+from app.core.init_data import create_trade_account, create_user
 from app.utils.exceptions import register_exception_handlers
 from app.utils.logging import RequestLoggingMiddleware, setup_logging
 
@@ -24,6 +24,7 @@ async def lifespan(app: FastAPI):
 	logger.info("FastAPI app startup")
 	await create_db_and_tables()
 	await create_user(settings.FIRST_SUPERUSER_EMAIL, settings.FIRST_SUPERUSER_PASSWORD)
+	await create_trade_account()
 	logger.success("Startup initialization complete")
 	try:
 		yield

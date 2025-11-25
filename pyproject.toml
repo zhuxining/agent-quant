@@ -62,6 +62,9 @@ select = [
     "C4",  # flake8-comprehensions
     "I",   # isort
 ]
+ignore = [
+    "E501", # line too long
+]
 
 [tool.ruff.format]
 quote-style = "double"

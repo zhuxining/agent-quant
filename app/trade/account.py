@@ -38,6 +38,43 @@ class AccountSnapshot:
 	description: str | None
 
 
+@dataclass(slots=True)
+class AccountOverview:
+	"""面向 Prompt/Workflow 的账户概览。"""
+
+	account_number: str
+	name: str
+	cash_available: Decimal
+	buying_power: Decimal
+	realized_pnl: Decimal
+	return_pct: float | None
+	sharpe_ratio: float | None
+	description: str | None = None
+
+
+def _calculate_return_pct(snapshot: AccountSnapshot) -> float | None:
+	base = snapshot.balance
+	if base == 0:
+		return None
+	return float((snapshot.realized_pnl / base) * Decimal("100"))
+
+
+async def build_account_overview(session: AsyncSession, account_number: str) -> AccountOverview:
+	"""查询账户并计算基础绩效指标，供 agent prompt 使用。"""
+
+	snapshot = await get_account_snapshot(session, account_number)
+	return AccountOverview(
+		account_number=snapshot.account_number,
+		name=snapshot.name,
+		cash_available=snapshot.balance,
+		buying_power=snapshot.buying_power,
+		realized_pnl=snapshot.realized_pnl,
+		return_pct=_calculate_return_pct(snapshot),
+		sharpe_ratio=None,
+		description=snapshot.description,
+	)
+
+
 async def get_account_snapshot(session: AsyncSession, account_number: str) -> AccountSnapshot:
 	"""查询指定账户最新状态。"""
 
