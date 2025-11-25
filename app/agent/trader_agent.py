@@ -20,7 +20,6 @@ class AgentDefinition(BaseModel):
 
 
 def get_system_prompt() -> AgentDefinition:
-
 	description = (
 		"你是一个量化交易助理，负责基于提供的账户信息、仓位和市场数据，给出清晰的操作建议。"
 	)
@@ -43,15 +42,15 @@ def get_system_prompt() -> AgentDefinition:
 class AgentInput(BaseModel):
 	"""Agent 输入结构。
 
-	- account_number: 账户标识
-	- symbols: 关注的标的列表（符号形式，例如 AAPL）
-	- timeframe: 文本描述的时间粒度（如 1h、1d）
+	- account: 账户信息
+	- position: 持仓信息
+	- candidate: 候选交易标的和市场数据
 	- extra: 可选的额外上下文
 	"""
 
-	account_number: str
-	symbols: list[str]
-	timeframe: str = "1d"
+	candidate: str
+	account: str
+	position: str
 	extra: str | None = None
 
 
@@ -85,7 +84,7 @@ def trader_agent(
 ) -> Agent:
 	"""工厂函数：根据已注册的模型标识创建 agno.Agent 实例。
 
-	model_name 必须来自 `app.agent.llm_models` 中注册的键（例如 "kimi"、"deepseek"）。
+	model_name 必须来自 `app.agent.available_models` 中注册的键（例如 "kimi"、"deepseek"）。
 
 	返回值：已配置的 Agent
 	"""

@@ -35,6 +35,8 @@ class PositionBase(SQLModel):
 	status: PositionStatus = Field(
 		default=PositionStatus.OPEN, sa_column_kwargs={"comment": "持仓状态"}
 	)
+	profit_target: Decimal | None = Field(default=None, sa_column_kwargs={"comment": "止盈目标价"})
+	stop_loss: Decimal | None = Field(default=None, sa_column_kwargs={"comment": "止损目标价"})
 	notes: str | None = Field(default=None, sa_column_kwargs={"comment": "备注说明"})
 
 
@@ -56,6 +58,8 @@ class PositionUpdate(SQLModel):
 	unrealized_pnl: Decimal | None = Field(default=None, description="浮动盈亏")
 	realized_pnl: Decimal | None = Field(default=None, description="已实现盈亏")
 	status: PositionStatus | None = Field(default=None, description="持仓状态")
+	profit_target: Decimal | None = Field(default=None, sa_column_kwargs={"comment": "止盈目标价"})
+	stop_loss: Decimal | None = Field(default=None, sa_column_kwargs={"comment": "止损目标价"})
 	notes: str | None = Field(default=None, description="备注")
 
 
