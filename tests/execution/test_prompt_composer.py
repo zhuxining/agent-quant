@@ -3,6 +3,7 @@
 from decimal import Decimal
 
 from app.execution.prompt_composer import PromptComposer
+
 from app.market.data_feed import MarketSnapshot
 from app.models import PositionSide
 from app.trade.account import AccountOverview
