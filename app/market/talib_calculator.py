@@ -23,7 +23,6 @@ class IndicatorCalculator:
         high_column: str = "high",
         low_column: str = "low",
     ):
-
         self.change_periods = tuple(change_periods or (1, 5))
         self.ema_periods = tuple(ema_periods or (20, 50))
         self.rsi_periods = tuple(rsi_periods or (7, 14))

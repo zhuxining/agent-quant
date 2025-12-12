@@ -71,8 +71,8 @@ class LongportSource:
         ]
         frame = pd.DataFrame(frames)
         frame["datetime"] = pd.to_datetime(frame["timestamp"], unit="s")
-        frame.sort_values("datetime", inplace=True)
-        frame.reset_index(drop=True, inplace=True)
+        frame = frame.sort_values("datetime")
+        frame = frame.reset_index(drop=True)
         return frame
 
 
