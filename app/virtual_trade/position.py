@@ -94,6 +94,11 @@ async def apply_buy_to_position(
 ) -> VirtualTradePosition:
     """根据买入成交结果创建或扩充持仓。"""
 
+    if quantity <= 0:
+        raise ValueError("quantity 必须为正整数")
+    if price <= 0:
+        raise ValueError("price 必须大于 0")
+
     total_cost = price * Decimal(quantity)
     if position is None:
         position = VirtualTradePosition(
@@ -133,6 +138,13 @@ def apply_sell_to_position(
     realized_delta: Decimal,
 ) -> None:
     """根据卖出成交结果扣减持仓并维护状态。"""
+
+    if quantity <= 0:
+        raise ValueError("quantity 必须为正整数")
+    if price <= 0:
+        raise ValueError("price 必须大于 0")
+    if quantity > position.available_quantity:
+        raise ValueError(f"可用持仓不足: 可用 {position.available_quantity}, 请求 {quantity}")
 
     position.quantity -= quantity
     position.available_quantity -= quantity

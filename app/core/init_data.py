@@ -8,7 +8,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 from app.core.deps import get_db_session, get_user_db_session, get_user_manager
-from app.models import TradeAccount, TradeAccountCreate, TradeAccountRead, UserCreate
+from app.models import (
+    UserCreate,
+    VirtualTradeAccount,
+    VirtualTradeAccountCreate,
+    VirtualTradeAccountRead,
+)
 
 get_db_session_context = contextlib.asynccontextmanager(get_db_session)
 get_user_db_session_context = contextlib.asynccontextmanager(get_user_db_session)
@@ -32,14 +37,16 @@ async def create_user(email: str, password: str, is_superuser: bool = False):
         pass
 
 
-async def create_trade_account() -> TradeAccountRead:
+async def create_trade_account() -> VirtualTradeAccountRead:
     async with get_db_session_context() as session:
-        result = await session.execute(select(TradeAccount).where(TradeAccount.is_active == true()))
+        result = await session.execute(
+            select(VirtualTradeAccount).where(VirtualTradeAccount.is_active == true())
+        )
         existing_account = result.scalars().first()
         if existing_account:
             logger.info("Active trade account already exists.")
-            return TradeAccountRead.model_validate(existing_account)
-        new_account_data = TradeAccountCreate(
+            return VirtualTradeAccountRead.model_validate(existing_account)
+        new_account_data = VirtualTradeAccountCreate(
             name="Primary Account",
             account_number="ACC123456",
             balance=Decimal("100000.00"),
@@ -48,13 +55,13 @@ async def create_trade_account() -> TradeAccountRead:
             is_active=True,
             description="Initial trade account",
         )
-        new_account = TradeAccount(**new_account_data.model_dump())
+        new_account = VirtualTradeAccount(**new_account_data.model_dump())
         session.add(new_account)
         try:
             await session.commit()
             await session.refresh(new_account)
             logger.success(f"Trade account created: {new_account}")
-            return TradeAccountRead.model_validate(new_account)
+            return VirtualTradeAccountRead.model_validate(new_account)
         except IntegrityError as e:
             await session.rollback()
             logger.error(f"Failed to create trade account: {e}")

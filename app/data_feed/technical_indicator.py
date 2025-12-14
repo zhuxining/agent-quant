@@ -22,7 +22,7 @@ DEFAULT_ADJUST = AdjustType.ForwardAdjust
 
 
 @dataclass(slots=True)
-class FeedSlice:
+class TechnicalFeedSlice:
     """Single timeframe snapshot containing the enriched OHLCV frame."""
 
     symbol: str
@@ -40,7 +40,7 @@ class FeedSlice:
 
 
 @dataclass(slots=True)
-class MarketSnapshot:
+class TechnicalSnapshot:
     """面向 Prompt/Workflow 的行情摘要。"""
 
     symbol: str
@@ -63,7 +63,7 @@ class MarketSnapshot:
     long_term_rsi14: list[float]
 
 
-class DataFeed:
+class TechnicalIndicatorFeed:
     """构建长线与短线两组行情数据,并附带核心指标。"""
 
     def __init__(
@@ -81,7 +81,7 @@ class DataFeed:
         short_term_count: int = DEFAULT_SHORT_TERM_COUNT,
         adjust: Any = DEFAULT_ADJUST,
         end_date: datetime | None = None,
-    ) -> dict[str, FeedSlice]:
+    ) -> dict[str, TechnicalFeedSlice]:
         """Return both long-term and short-term slices enriched with indicators."""
 
         long_term_slice = self.build_long_term(
@@ -105,7 +105,7 @@ class DataFeed:
         short_term_count: int = DEFAULT_SHORT_TERM_COUNT,
         adjust: Any = DEFAULT_ADJUST,
         end_date: datetime | None = None,
-    ) -> MarketSnapshot:
+    ) -> TechnicalSnapshot:
         """构建单个标的的行情摘要。"""
 
         slices = self.build(
@@ -124,21 +124,18 @@ class DataFeed:
         short_term_count: int = DEFAULT_SHORT_TERM_COUNT,
         adjust: Any = DEFAULT_ADJUST,
         end_date: datetime | None = None,
-    ) -> list[MarketSnapshot]:
+    ) -> list[TechnicalSnapshot]:
         """批量构建多个标的的行情摘要。"""
-
-        snapshots: list[MarketSnapshot] = []
-        for symbol in symbols:
-            snapshots.append(
-                self.build_snapshot(
-                    symbol=symbol,
-                    long_term_count=long_term_count,
-                    short_term_count=short_term_count,
-                    adjust=adjust,
-                    end_date=end_date,
-                )
+        return [
+            self.build_snapshot(
+                symbol=symbol,
+                long_term_count=long_term_count,
+                short_term_count=short_term_count,
+                adjust=adjust,
+                end_date=end_date,
             )
-        return snapshots
+            for symbol in symbols
+        ]
 
     def build_long_term(
         self,
@@ -146,7 +143,7 @@ class DataFeed:
         count: int = DEFAULT_LONG_TERM_COUNT,
         adjust: Any = DEFAULT_ADJUST,
         end_date: datetime | None = None,
-    ) -> FeedSlice:
+    ) -> TechnicalFeedSlice:
         """单独构建长线(日线)行情切片。"""
 
         return self._build_slice(
@@ -163,7 +160,7 @@ class DataFeed:
         count: int = DEFAULT_SHORT_TERM_COUNT,
         adjust: Any = DEFAULT_ADJUST,
         end_date: datetime | None = None,
-    ) -> FeedSlice:
+    ) -> TechnicalFeedSlice:
         """单独构建短线(小时线)行情切片。"""
 
         return self._build_slice(
@@ -203,7 +200,7 @@ class DataFeed:
         count: int,
         adjust: Any,
         end_date: datetime | None,
-    ) -> FeedSlice:
+    ) -> TechnicalFeedSlice:
         frame = self.source.get_candles_frame(
             symbol=symbol,
             interval=period,
@@ -212,7 +209,7 @@ class DataFeed:
             end_date=end_date,
         )
         enriched = self._apply_indicators(frame)
-        return FeedSlice(symbol=symbol, period=period, frame=enriched)
+        return TechnicalFeedSlice(symbol=symbol, period=period, frame=enriched)
 
     def _apply_indicators(self, frame: pd.DataFrame) -> pd.DataFrame:
         """顺序计算中间价与各类指标,确保 DataFrame 持续扩展。"""
@@ -241,12 +238,12 @@ class DataFeed:
             return None
         try:
             return float(value)
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             return None
 
     def _to_snapshot(
-        self, symbol: str, short_term: FeedSlice, long_term: FeedSlice
-    ) -> MarketSnapshot:
+        self, symbol: str, short_term: TechnicalFeedSlice, long_term: TechnicalFeedSlice
+    ) -> TechnicalSnapshot:
         latest_short = short_term.latest
         latest_long = long_term.latest
         volume_series = long_term.frame.get("volume")
@@ -255,7 +252,7 @@ class DataFeed:
             clean = volume_series.dropna()
             if not clean.empty:
                 volume_avg = float(clean.mean())
-        return MarketSnapshot(
+        return TechnicalSnapshot(
             symbol=symbol,
             current_price=self._safe_float(latest_short.get("close")),
             current_ema20=self._safe_float(latest_short.get("ema_20")),
@@ -283,7 +280,7 @@ __all__ = [
     "DEFAULT_SHORT_TERM_COUNT",
     "LONG_TERM_PERIOD",
     "SHORT_TERM_PERIOD",
-    "DataFeed",
-    "FeedSlice",
-    "MarketSnapshot",
+    "TechnicalFeedSlice",
+    "TechnicalIndicatorFeed",
+    "TechnicalSnapshot",
 ]
