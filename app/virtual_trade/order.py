@@ -9,17 +9,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import (
     OrderSide,
+    OrderStatus,
     OrderType,
-    Position,
     PositionSide,
-    TradeOrder,
-    TradeOrderStatus,
+    VirtualTradeOrder,
+    VirtualTradePosition,
 )
-from app.trade.account import (
+from app.virtual_trade.account import (
     AccountSnapshot,
     apply_order_settlement,
 )
-from app.trade.position import (
+from app.virtual_trade.position import (
     apply_buy_to_position,
     apply_sell_to_position,
     calculate_realized_pnl,
@@ -43,8 +43,8 @@ class InsufficientPositionQuantityError(TradeOrderError):
 class OrderExecutionResult:
     """下单完成后的聚合结果。"""
 
-    order: TradeOrder
-    position: Position
+    order: VirtualTradeOrder
+    position: VirtualTradePosition
     account: AccountSnapshot
 
 
@@ -84,14 +84,14 @@ async def place_buy_order(
         quantity=quantity,
         price=price,
     )
-    order = TradeOrder(
+    order = VirtualTradeOrder(
         account_number=account_number,
         symbol_exchange=symbol_exchange,
         side=OrderSide.BUY,
         order_type=order_type,
         quantity=quantity,
         price=price,
-        status=TradeOrderStatus.FILLED,
+        status=OrderStatus.FILLED,
         executed_quantity=quantity,
         average_price=price,
     )
@@ -147,14 +147,14 @@ async def place_sell_order(
         price=price,
         realized_delta=realized_delta,
     )
-    order = TradeOrder(
+    order = VirtualTradeOrder(
         account_number=account_number,
         symbol_exchange=symbol_exchange,
         side=OrderSide.SELL,
         order_type=order_type,
         quantity=quantity,
         price=price,
-        status=TradeOrderStatus.FILLED,
+        status=OrderStatus.FILLED,
         executed_quantity=quantity,
         average_price=price,
     )
@@ -177,8 +177,8 @@ def _validate_price(price: Decimal | float | str) -> Decimal:
 
 async def _finalize(
     session: AsyncSession,
-    order: TradeOrder,
-    position: Position,
+    order: VirtualTradeOrder,
+    position: VirtualTradePosition,
     auto_commit: bool,
 ) -> None:
     await session.flush()

@@ -1,3 +1,4 @@
+from textwrap import dedent
 from typing import Literal
 
 from agno.agent import Agent
@@ -24,12 +25,15 @@ class AgentDefinition(BaseModel):
 def get_system_prompt() -> AgentDefinition:
     """返回上下文描述与指令(中文)。"""
 
-    description = "你是一个量化交易助理,负责基于提供的账户信息、仓位和市场数据,给出清晰的操作建议。"
-    instructions = (
-        "1) 输出须包含明确的操作(如:buy/sell/hold、symbol、quantity 或 weight)\n"
-        "2) 给出简洁的理由与置信度估计(0-1)\n"
-        "3) 若需要更多数据或无法判断,说明缺失的信息。"
+    description = dedent(
+        """你是一个量化交易助理,负责基于提供的账户信息、仓位和市场数据,给出清晰的操作建议。"""
     )
+    instructions = dedent("""\
+    请基于用户提供的信息,严格按照以下要求输出建议:
+        1) 输出须包含明确的操作(如:buy/sell/hold、symbol、quantity 或 weight)
+        2) 给出简洁的理由与置信度估计(0-1)
+        3) 若需要更多数据或无法判断,说明缺失的信息。
+    """)
     additional_context = ""
     return AgentDefinition(
         description=description,

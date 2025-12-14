@@ -4,20 +4,22 @@
 
 ## 模块概览
 
-| 路径          | 角色说明         | 关键备注                                                                           |
-| ------------- | ---------------- | ---------------------------------------------------------------------------------- |
-| `app/main.py` | FastAPI 入口     | 创建应用实例并挂载所有路由。                                                       |
-| `app/core/`   | 配置与基础设施   | 统一管理配置(`config.py`)、数据库(`db.py`)以及共享依赖(`deps.py`,数据库会话、鉴权上下文等) |
-| `app/models/`     | 数据库模型与API模型   |  使用SQLModel定义的数据库模型与 API 输出输出模型      |
-| `app/api/`       | HTTP 对外接口    | `__init__.py` 汇总路由;`routes/` 中按照功能划分子路由              |
-| `app/market/`    | 市场数据       | 获取市场数据,计算技术指标等            |
-| `app/agent/`     | Agent 核心     | 初始化各职能的Agent,包含prompt、输入输出结构定义                   |
-| `app/execution/` | 执行调度       | 调度 Agent 、Market、Trade                 |
-| `app/trade/`     | 交易账户       | 管理账户(`account.py`)、订单(`order.py`)与持仓(`position.py`)                      |
-| `app/utils/`     | 跨层工具       | 提供可在多个模块复用的通用工具方法                                                 |
-| `tests/`         | 测试           | `conftest.py` 提供统一依赖覆盖;`tests/utils/` 存放测试专用工具                    |
-| `serve.py`       | 本地运行入口   | 通过 `uv` 启动应用的便捷脚本                                                       |
-| `logs/`          | 运行日志       | 应用写入的日志文件                                                                 |
+| 路径                | 角色说明             | 关键备注                                                                           |
+| ------------------- | -------------------- | ---------------------------------------------------------------------------------- |
+| `app/main.py`       | FastAPI + AgentOS 入口 | 初始化日志/DB/默认用户与交易账户,加载 AgentOS,挂载路由与中间件。                    |
+| `app/core/`         | 配置与基础设施        | 配置(`config.py`)、数据库(`db.py`)、依赖(`deps.py`)、初始化数据(`init_data.py`)。    |
+| `app/api/`          | HTTP 对外接口        | `__init__.py` 汇总路由; `routes/` 按功能划分(auth/user/post)。                      |
+| `app/agent/`        | Agent 定义与工厂     | 提供可用模型表、示例 Agent、交易 Agent 初始化函数。                                |
+| `app/data_source/`  | 市场数据源适配       | 统一对接外部行情源(如 Longport)。                                                   |
+| `app/data_feed/`    | 行情加工与指标       | 组合数据源、计算技术指标/情绪/新闻等扩展数据。                                      |
+| `app/prompt_build/` | Prompt 片段生成      | 组装账户与技术面快照,提供给 Agent 的上下文片段。                                   |
+| `app/models/`       | 数据库与 API 模型    | SQLModel 实体与对应 Pydantic 校验/输出模型,含虚拟交易相关实体。                     |
+| `app/virtual_trade/`| 虚拟交易业务         | 账户/订单/持仓业务逻辑,与模型对应。                                                |
+| `app/workflow/`     | 工作流与调度         | 工作流入口(如 `nof1_workflow.py`) 串联数据、Agent、交易。                            |
+| `app/utils/`        | 跨层工具             | 响应封装、异常、日志、指标计算等通用方法。                                          |
+| `tests/`            | 测试                 | `conftest.py` 统一依赖; `tests/utils/` 存放测试工具与鉴权辅助。                      |
+| `serve.py`          | 本地运行入口         | 通过 `uv` 启动应用的便捷脚本。                                                      |
+| `logs/`             | 运行日志             | 应用写入的日志文件。                                                                |
 
 ## 开发常用命令
 

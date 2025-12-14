@@ -8,7 +8,7 @@ from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models import Position, PositionSide, PositionStatus
+from app.models import PositionSide, PositionStatus, VirtualTradePosition
 
 ZERO = Decimal("0")
 
@@ -37,9 +37,9 @@ async def list_position_summaries(
     """查询账户当前持仓,转换为适合 Prompt 的结构。"""
 
     statement = (
-        select(Position)
-        .where(Position.account_number == account_number)
-        .order_by(Position.symbol_exchange)
+        select(VirtualTradePosition)
+        .where(VirtualTradePosition.account_number == account_number)
+        .order_by(VirtualTradePosition.symbol_exchange)
     )
     result = await session.execute(statement)
     return [
@@ -67,15 +67,15 @@ async def get_position_for_update(
     account_number: str,
     symbol_exchange: str,
     side: PositionSide,
-) -> Position | None:
+) -> VirtualTradePosition | None:
     """在事务中锁定指定股票的持仓记录。"""
 
     statement = (
-        select(Position)
+        select(VirtualTradePosition)
         .where(
-            Position.account_number == account_number,
-            Position.symbol_exchange == symbol_exchange,
-            Position.side == side,
+            VirtualTradePosition.account_number == account_number,
+            VirtualTradePosition.symbol_exchange == symbol_exchange,
+            VirtualTradePosition.side == side,
         )
         .with_for_update()
     )
@@ -85,18 +85,18 @@ async def get_position_for_update(
 
 async def apply_buy_to_position(
     session: AsyncSession,
-    position: Position | None,
+    position: VirtualTradePosition | None,
     *,
     account_number: str,
     symbol_exchange: str,
     quantity: int,
     price: Decimal,
-) -> Position:
+) -> VirtualTradePosition:
     """根据买入成交结果创建或扩充持仓。"""
 
     total_cost = price * Decimal(quantity)
     if position is None:
-        position = Position(
+        position = VirtualTradePosition(
             account_number=account_number,
             symbol_exchange=symbol_exchange,
             side=PositionSide.LONG,
@@ -126,7 +126,7 @@ async def apply_buy_to_position(
 
 
 def apply_sell_to_position(
-    position: Position,
+    position: VirtualTradePosition,
     *,
     quantity: int,
     price: Decimal,
@@ -164,7 +164,7 @@ def calculate_realized_pnl(
     return (execution_price - average_cost) * qty
 
 
-def calculate_unrealized(position: Position) -> Decimal:
+def calculate_unrealized(position: VirtualTradePosition) -> Decimal:
     """根据最新价格计算浮动盈亏。"""
 
     if position.market_price is None or position.quantity <= 0:

@@ -11,8 +11,8 @@ from typing import Any
 from longport.openapi import AdjustType, Period
 import pandas as pd
 
-from .longport_source import LongportSource
-from .talib_calculator import IndicatorCalculator
+from app.data_source.longport_source import LongportSource
+from app.utils.talib_calculator import IndicatorCalculator
 
 DEFAULT_LONG_TERM_COUNT = 200
 DEFAULT_SHORT_TERM_COUNT = 240
@@ -71,7 +71,7 @@ class DataFeed:
         indicator_calculator: IndicatorCalculator | None = None,
         source: LongportSource | None = None,
     ) -> None:
-        self.indicator_calculator = indicator_calculator or IndicatorCalculator()
+        self.indicator_calculator = indicator_calculator or IndicatorCalculator
         self.source = source or LongportSource()
 
     def build(

@@ -6,7 +6,7 @@ from sqlmodel import Field, SQLModel
 from .base_model import BaseModel
 
 
-class TradeAccountBase(SQLModel):
+class VirtualTradeAccountBase(SQLModel):
     name: str = Field(sa_column_kwargs={"comment": "交易账户名称"})
     account_number: str = Field(
         index=True, sa_column_kwargs={"comment": "交易账户号", "unique": True}
@@ -18,18 +18,18 @@ class TradeAccountBase(SQLModel):
     description: str | None = Field(default=None, sa_column_kwargs={"comment": "备注说明"})
 
 
-class TradeAccount(BaseModel, TradeAccountBase, table=True):
-    __tablename__: ClassVar[Any] = "trade_account"
+class VirtualTradeAccount(BaseModel, VirtualTradeAccountBase, table=True):
+    __tablename__: ClassVar[Any] = "virtual_trade_account"
     __table_args__ = {"comment": "交易账户表"}
 
 
-class TradeAccountCreate(TradeAccountBase):
+class VirtualTradeAccountCreate(VirtualTradeAccountBase):
     pass
 
 
-class TradeAccountUpdate(TradeAccountBase):
+class VirtualTradeAccountUpdate(VirtualTradeAccountBase):
     pass
 
 
-class TradeAccountRead(BaseModel, TradeAccountBase):
+class VirtualTradeAccountRead(BaseModel, VirtualTradeAccountBase):
     pass

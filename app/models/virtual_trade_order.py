@@ -17,14 +17,14 @@ class OrderType(StrEnum):
     LIMIT = "limit"
 
 
-class TradeOrderStatus(StrEnum):
+class OrderStatus(StrEnum):
     PENDING = "pending"
     FILLED = "filled"
     CANCELLED = "cancelled"
     FAILED = "failed"
 
 
-class TradeOrderBase(SQLModel):
+class VirtualTradeOrderBase(SQLModel):
     account_number: str = Field(sa_column_kwargs={"comment": "下单账户号"})
     symbol_exchange: str = Field(sa_column_kwargs={"comment": "标的股票"})
     side: OrderSide = Field(sa_column_kwargs={"comment": "买卖方向"})
@@ -33,8 +33,8 @@ class TradeOrderBase(SQLModel):
     )
     quantity: int = Field(gt=0, sa_column_kwargs={"comment": "委托数量"})
     price: Decimal | None = Field(default=None, sa_column_kwargs={"comment": "委托价格"})
-    status: TradeOrderStatus = Field(
-        default=TradeOrderStatus.PENDING, sa_column_kwargs={"comment": "订单状态"}
+    status: OrderStatus = Field(
+        default=OrderStatus.PENDING, sa_column_kwargs={"comment": "订单状态"}
     )
     executed_quantity: int = Field(default=0, ge=0, sa_column_kwargs={"comment": "已成交数量"})
     average_price: Decimal | None = Field(
@@ -43,17 +43,17 @@ class TradeOrderBase(SQLModel):
     notes: str | None = Field(default=None, sa_column_kwargs={"comment": "订单备注"})
 
 
-class TradeOrder(BaseModel, TradeOrderBase, table=True):
-    __tablename__: ClassVar[Any] = "trade_order"
+class VirtualTradeOrder(BaseModel, VirtualTradeOrderBase, table=True):
+    __tablename__: ClassVar[Any] = "virtual_trade_order"
     __table_args__ = {"comment": "交易订单表"}
 
 
-class TradeOrderCreate(TradeOrderBase):
+class VirtualTradeOrderCreate(VirtualTradeOrderBase):
     pass
 
 
-class TradeOrderUpdate(SQLModel):
-    status: TradeOrderStatus | None = Field(default=None, description="订单状态")
+class VirtualTradeOrderUpdate(SQLModel):
+    status: OrderStatus | None = Field(default=None, description="订单状态")
     executed_quantity: int | None = Field(default=None, ge=0, description="已成交数量")
     average_price: Decimal | None = Field(default=None, description="成交均价")
     price: Decimal | None = Field(default=None, description="最新委托价格")
@@ -61,5 +61,5 @@ class TradeOrderUpdate(SQLModel):
     notes: str | None = Field(default=None, description="备注信息")
 
 
-class TradeOrderRead(BaseModel, TradeOrderBase):
+class VirtualTradeOrderRead(BaseModel, VirtualTradeOrderBase):
     pass

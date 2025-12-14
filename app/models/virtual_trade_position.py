@@ -17,7 +17,7 @@ class PositionStatus(StrEnum):
     CLOSED = "closed"
 
 
-class PositionBase(SQLModel):
+class VirtualTradePositionBase(SQLModel):
     account_number: str = Field(sa_column_kwargs={"comment": "所属交易账户号"})
     symbol_exchange: str = Field(sa_column_kwargs={"comment": "标的股票"})
     side: PositionSide = Field(sa_column_kwargs={"comment": "持仓方向 (多/空)"})
@@ -40,16 +40,16 @@ class PositionBase(SQLModel):
     notes: str | None = Field(default=None, sa_column_kwargs={"comment": "备注说明"})
 
 
-class Position(BaseModel, PositionBase, table=True):
-    __tablename__: ClassVar[Any] = "position"
+class VirtualTradePosition(BaseModel, VirtualTradePositionBase, table=True):
+    __tablename__: ClassVar[Any] = "virtual_trade_position"
     __table_args__ = {"comment": "交易账户持仓表"}
 
 
-class PositionCreate(PositionBase):
+class VirtualTradePositionCreate(VirtualTradePositionBase):
     pass
 
 
-class PositionUpdate(SQLModel):
+class VirtualTradePositionUpdate(SQLModel):
     quantity: int | None = Field(default=None, ge=0, description="当前总持仓数量")
     available_quantity: int | None = Field(default=None, ge=0, description="可交易数量")
     average_cost: Decimal | None = Field(default=None, description="持仓成本")
@@ -63,5 +63,5 @@ class PositionUpdate(SQLModel):
     notes: str | None = Field(default=None, description="备注")
 
 
-class PositionRead(BaseModel, PositionBase):
+class VirtualTradePositionRead(BaseModel, VirtualTradePositionBase):
     pass

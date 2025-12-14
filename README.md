@@ -22,17 +22,22 @@ uv run pytest
 
 ## 📂 目录速览
 
-| 路径          | 说明                                              |
-| ------------- | ------------------------------------------------- |
-| `app/main.py` | FastAPI 入口,挂载路由、中间件、异常处理。        |
-| `app/core/`   | 配置、数据库会话、FastAPI Users 依赖。            |
-| `app/api/`    | 业务路由(auth/user/post)。                      |
-| `app/models/` | SQLModel & Pydantic 模型。                        |
-| `app/quant/`  | Agent Quant 相关方法和逻辑。                      |
-| `app/utils/`  | 响应包装、异常、日志等跨层工具。                  |
-| `tests/`      | pytest 用例、fixture、辅助函数。                  |
-| `serve.py`    | 本地运行脚本,封装 `uvicorn`/`granian` 启动逻辑。 |
-| `Dockerfile`  | 生产镜像构建配置。                                |
+| 路径                | 说明                                                        |
+| ------------------- | ----------------------------------------------------------- |
+| `app/main.py`       | FastAPI 入口,初始化 AgentOS,挂载路由/中间件/异常处理。     |
+| `app/core/`         | 配置、数据库会话、依赖与初始化数据(create_user/账户等)。   |
+| `app/api/`          | 业务路由(auth/user/post 等)。                              |
+| `app/agent/`        | 可用 Agent 定义与工厂(示例交易 Agent 等)。                 |
+| `app/data_source/`  | 市场数据源适配层(如 Longport)。                            |
+| `app/data_feed/`    | 行情拼装与指标/情绪/新闻等数据加工。                       |
+| `app/prompt_build/` | Prompt 组装的片段与快照(账户/技术面等)。                    |
+| `app/models/`       | SQLModel + Pydantic 模型,含虚拟交易相关实体。               |
+| `app/virtual_trade/`| 虚拟交易账户、订单、持仓的业务逻辑。                       |
+| `app/workflow/`     | 工作流/调度逻辑(如 nof1_workflow)。                         |
+| `app/utils/`        | 响应包装、异常、日志、指标计算等跨层工具。                  |
+| `tests/`            | pytest 用例、fixture、测试辅助工具。                        |
+| `serve.py`          | 本地运行脚本,封装 `uvicorn`/`granian` 启动逻辑。            |
+| `Dockerfile`        | 生产镜像构建配置。                                          |
 
 更多协作规范(如测试约定、目录约束)请参考 [AGENTS.md](AGENTS.md)。
 

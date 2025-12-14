@@ -9,7 +9,7 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models import OrderSide, TradeAccount
+from app.models import OrderSide, VirtualTradeAccount
 
 
 class TradeAccountError(RuntimeError):
@@ -78,7 +78,9 @@ async def build_account_overview(session: AsyncSession, account_number: str) -> 
 async def get_account_snapshot(session: AsyncSession, account_number: str) -> AccountSnapshot:
     """查询指定账户最新状态。"""
 
-    statement = select(TradeAccount).where(TradeAccount.account_number == account_number)
+    statement = select(VirtualTradeAccount).where(
+        VirtualTradeAccount.account_number == account_number
+    )
     result = await session.execute(statement)
     account = result.scalar_one_or_none()
     if account is None:
@@ -100,7 +102,9 @@ async def apply_order_settlement(
     if cash_amount <= 0:
         raise ValueError("cash_amount 必须为正数")
     statement = (
-        select(TradeAccount).where(TradeAccount.account_number == account_number).with_for_update()
+        select(VirtualTradeAccount)
+        .where(VirtualTradeAccount.account_number == account_number)
+        .with_for_update()
     )
     result = await session.execute(statement)
     account = result.scalar_one_or_none()
@@ -124,7 +128,7 @@ async def apply_order_settlement(
     return _to_snapshot(account)
 
 
-def _to_snapshot(account: TradeAccount) -> AccountSnapshot:
+def _to_snapshot(account: VirtualTradeAccount) -> AccountSnapshot:
     return AccountSnapshot(
         id=account.id,
         account_number=account.account_number,
