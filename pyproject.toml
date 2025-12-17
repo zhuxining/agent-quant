@@ -20,7 +20,7 @@ dependencies = [
     "pandas>=2.3.3",
     "quantstats>=0.0.77",
     "apscheduler>=3.10.4",
-    "agno[openai]>=2.3.11",
+    "agno[openai]>=2.3.13",
 
 ]
 

@@ -185,3 +185,14 @@ def calculate_unrealized(position: VirtualTradePosition) -> Decimal:
     if position.side is PositionSide.SHORT:
         return (position.average_cost - position.market_price) * qty
     return (position.market_price - position.average_cost) * qty
+
+
+__all__ = [
+    "PositionSummary",
+    "apply_buy_to_position",
+    "apply_sell_to_position",
+    "calculate_realized_pnl",
+    "calculate_unrealized",
+    "get_position_for_update",
+    "list_position_summaries",
+]
