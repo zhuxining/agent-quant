@@ -18,7 +18,7 @@ def fmt_number(value: float | Decimal | None, *, suffix: str = "") -> str:
 
 def fmt_currency(value: float | Decimal | None) -> str:
     """格式化货币值。"""
-    return f"${fmt_number(value)}" if value is not None else "$N/A"
+    return f"${fmt_number(value)}"
 
 
 def fmt_pct(value: float | Decimal | None) -> str:
