@@ -9,6 +9,7 @@ from .fetch_account_data import fetch_account_data_step
 from .fetch_market_data import fetch_market_data_step
 from .notification import notification_step
 from .risk_check import risk_check_step
+from .utils import parse_step_input
 
 __all__ = [
     "build_prompts_step",
@@ -16,5 +17,6 @@ __all__ = [
     "fetch_account_data_step",
     "fetch_market_data_step",
     "notification_step",
+    "parse_step_input",
     "risk_check_step",
 ]

@@ -47,9 +47,7 @@ def build_account_snapshot(
     """根据账户与持仓信息构建整齐的 Markdown 提示片段。"""
 
     positions = positions or []
-    holding_symbols = (
-        "、".join([str(p.get("symbol", "?")) for p in positions]) or "暂无持仓"
-    )
+    holding_symbols = "、".join([str(p.get("symbol", "?")) for p in positions]) or "暂无持仓"
 
     return dedent(
         f"""

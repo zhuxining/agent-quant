@@ -17,6 +17,7 @@ from app.virtual_trade.order import (
     place_buy_order,
     place_sell_order,
 )
+from app.workflow.steps.utils import parse_step_input
 
 
 @dataclass
@@ -31,7 +32,7 @@ class TradeExecutionSummary:
     errors: list[str] = field(default_factory=list)
 
 
-async def _get_current_price(symbol: str) -> Decimal | None:
+def _get_current_price(symbol: str) -> Decimal | None:
     """获取标的当前价格。"""
     try:
         feed = TechnicalIndicatorFeed()
@@ -62,7 +63,7 @@ async def _execute_single_action(
         return None, f"{symbol}: quantity 必须为正数"
 
     # 获取当前价格
-    price = await _get_current_price(symbol)
+    price = _get_current_price(symbol)
     if price is None:
         return None, f"{symbol}: 无法获取当前价格"
 
@@ -103,25 +104,22 @@ async def _execute_single_action(
 async def _execute_trades(step_input: StepInput) -> StepOutput:
     """执行风控通过的交易动作。"""
     previous_outputs = step_input.previous_step_outputs or {}
-    input_data = step_input.input or {}
-    if hasattr(input_data, "model_dump"):
-        input_data = input_data.model_dump()
+    input_data = parse_step_input(step_input.input)
 
-    account_number = input_data.get("account_number", "")
+    account_number: str = input_data.get("account_number", "")
 
     # 从 Risk Check 步骤获取已批准的操作
     risk_output = previous_outputs.get("Risk Check")
     approved_actions = []
-    if risk_output and risk_output.additional_data:
-        approved_actions = risk_output.additional_data.get("approved_actions", [])
+    if risk_output and risk_output.content and isinstance(risk_output.content, dict):
+        approved_actions = risk_output.content.get("approved_actions", [])
 
     summary = TradeExecutionSummary(total_actions=len(approved_actions))
 
     if not approved_actions:
         logger.info("无待执行的交易操作")
         return StepOutput(
-            content=summary,
-            additional_data={"execution_summary": summary},
+            content={"execution_summary": summary},
         )
 
     if not account_number:
@@ -129,8 +127,7 @@ async def _execute_trades(step_input: StepInput) -> StepOutput:
         logger.error(error)
         summary.errors.append(error)
         return StepOutput(
-            content=summary,
-            additional_data={"execution_summary": summary},
+            content={"execution_summary": summary},
         )
 
     async with async_session_maker() as session:
@@ -159,8 +156,7 @@ async def _execute_trades(step_input: StepInput) -> StepOutput:
     )
 
     return StepOutput(
-        content=summary,
-        additional_data={
+        content={
             "execution_summary": summary,
             "executed_count": summary.executed_count,
             "failed_count": summary.failed_count,

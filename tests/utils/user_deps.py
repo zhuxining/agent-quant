@@ -10,7 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.deps import UserManager
 from app.models.user import OAuthAccount, User, UserCreate
-from tests.utils.data import random_email, random_lower_string
+
+from .data import random_email, random_lower_string
 
 T = TypeVar("T")
 

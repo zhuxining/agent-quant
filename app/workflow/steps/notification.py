@@ -9,6 +9,8 @@ from agno.workflow.step import Step
 from agno.workflow.types import StepInput, StepOutput
 from loguru import logger
 
+from app.workflow.steps.utils import parse_step_input
+
 
 @dataclass
 class WorkflowSummary:
@@ -28,9 +30,7 @@ class WorkflowSummary:
 async def _notification(step_input: StepInput) -> StepOutput:
     """记录工作流执行日志并发送通知。"""
     previous_outputs = step_input.previous_step_outputs or {}
-    input_data = step_input.input or {}
-    if hasattr(input_data, "model_dump"):
-        input_data = input_data.model_dump()
+    input_data = parse_step_input(step_input.input)
 
     symbols = input_data.get("symbols", [])
     account_number = input_data.get("account_number", "")
@@ -40,26 +40,24 @@ async def _notification(step_input: StepInput) -> StepOutput:
     agent_output = previous_outputs.get("Agent Decision")
     if agent_output and agent_output.content:
         content = agent_output.content
-        if hasattr(content, "actions"):
-            agent_actions_count = len(content.actions)
-        elif isinstance(content, dict):
+        if isinstance(content, dict):
             agent_actions_count = len(content.get("actions", []))
+        elif hasattr(content, "actions"):
+            agent_actions_count = len(getattr(content, "actions", []))
 
     approved_actions_count = 0
     risk_output = previous_outputs.get("Risk Check")
-    if risk_output and risk_output.additional_data:
-        approved_actions_count = len(
-            risk_output.additional_data.get("approved_actions", [])
-        )
+    if risk_output and risk_output.content and isinstance(risk_output.content, dict):
+        approved_actions_count = len(risk_output.content.get("approved_actions", []))
 
     executed_count = 0
     failed_count = 0
     errors: list[str] = []
     trade_output = previous_outputs.get("Execute Trades")
-    if trade_output and trade_output.additional_data:
-        executed_count = trade_output.additional_data.get("executed_count", 0)
-        failed_count = trade_output.additional_data.get("failed_count", 0)
-        summary = trade_output.additional_data.get("execution_summary")
+    if trade_output and trade_output.content and isinstance(trade_output.content, dict):
+        executed_count = trade_output.content.get("executed_count", 0)
+        failed_count = trade_output.content.get("failed_count", 0)
+        summary = trade_output.content.get("execution_summary")
         if summary and hasattr(summary, "errors"):
             errors = summary.errors
 
@@ -98,8 +96,7 @@ async def _notification(step_input: StepInput) -> StepOutput:
     # - 写入数据库日志表
 
     return StepOutput(
-        content=workflow_summary,
-        additional_data={"workflow_summary": workflow_summary},
+        content={"workflow_summary": workflow_summary},
     )
 
 

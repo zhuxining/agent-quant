@@ -38,16 +38,16 @@ async def _build_prompts(step_input: StepInput) -> StepOutput:
     # 从 Step 1 获取行情数据
     market_output = previous_outputs.get("Fetch Market Data")
     snapshots = []
-    if market_output and market_output.additional_data:
-        snapshots = market_output.additional_data.get("snapshots", [])
+    if market_output and market_output.content and isinstance(market_output.content, dict):
+        snapshots = market_output.content.get("snapshots", [])
 
     # 从 Step 2 获取账户数据
     account_output = previous_outputs.get("Fetch Account Data")
     account = None
     positions = []
-    if account_output and account_output.additional_data:
-        account = account_output.additional_data.get("account")
-        positions = account_output.additional_data.get("positions", [])
+    if account_output and account_output.content and isinstance(account_output.content, dict):
+        account = account_output.content.get("account")
+        positions = account_output.content.get("positions", [])
 
     # 构建技术面 Prompt
     technical_prompt = build_technical_snapshots(snapshots)
@@ -69,18 +69,16 @@ async def _build_prompts(step_input: StepInput) -> StepOutput:
     else:
         account_prompt = "(账户信息不可用)"
 
-    combined_prompt = f"{account_prompt}\n\n{technical_prompt}"
-
     logger.info(
         f"Prompt 构建完成: 技术面={len(technical_prompt)}字符, 账户={len(account_prompt)}字符"
     )
 
+    # 返回符合 AgentInput schema 的结构
     return StepOutput(
-        content=combined_prompt,
-        additional_data={
-            "technical_prompt": technical_prompt,
-            "account_prompt": account_prompt,
-            "combined_prompt": combined_prompt,
+        content={
+            "candidate": technical_prompt,
+            "account": account_prompt,
+            "position": "(已包含在账户信息中)",
         },
     )
 

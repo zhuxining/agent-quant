@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from agno.os import AgentOS
@@ -16,6 +17,7 @@ from app.core.db import create_db_and_tables
 from app.core.init_data import create_trade_account, create_user
 from app.utils.exceptions import register_exception_handlers
 from app.utils.logging import RequestLoggingMiddleware, setup_logging
+from app.workflow.nof1_workflow import create_nof1_workflow, run_nof1_workflow
 
 
 @asynccontextmanager
@@ -26,9 +28,21 @@ async def lifespan(app: FastAPI):
     await create_user(settings.FIRST_SUPERUSER_EMAIL, settings.FIRST_SUPERUSER_PASSWORD)
     await create_trade_account()
     logger.success("Startup initialization complete")
+
+    async def run_nof1_background():
+        try:
+            result = await run_nof1_workflow()
+            logger.info(f"NOF1 workflow completed: {result}")
+        except Exception as e:
+            logger.error(f"NOF1 workflow failed: {e}")
+
+    nof1_task = asyncio.create_task(run_nof1_background())
+    logger.info("NOF1 workflow started in background")
+
     try:
         yield
     finally:
+        nof1_task.cancel()
         logger.info("FastAPI app shutdown")
 
 
@@ -70,9 +84,14 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 # ———————————— 加载Agent ———————————— #
 example_agent = example_agent("kimi")
 trader_agent = trader_agent()
+
+# ———————————— 加载Workflow ———————————— #
+nof1_workflow = create_nof1_workflow()
+
 agent_os = AgentOS(
     name="Quant Agent OS",
     agents=[example_agent, trader_agent],
+    workflows=[nof1_workflow],
     base_app=app,
 )
 

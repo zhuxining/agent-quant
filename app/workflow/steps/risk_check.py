@@ -62,9 +62,7 @@ def _check_single_action(
         if position is None:
             return False, f"无 {symbol} 持仓, 无法卖出"
         if quantity > position.available_quantity:
-            return False, (
-                f"{symbol} 可用数量 {position.available_quantity}, 请求卖出 {quantity}"
-            )
+            return False, (f"{symbol} 可用数量 {position.available_quantity}, 请求卖出 {quantity}")
         return True, None
 
     return True, None
@@ -80,21 +78,21 @@ async def _risk_check(step_input: StepInput) -> StepOutput:
 
     # 从 Agent Decision 步骤获取输出
     agent_output = previous_outputs.get("Agent Decision")
-    actions = []
+    actions: list[Any] = []
     if agent_output and agent_output.content:
         content = agent_output.content
-        if hasattr(content, "actions"):
-            actions = content.actions
-        elif isinstance(content, dict):
+        if isinstance(content, dict):
             actions = content.get("actions", [])
+        elif hasattr(content, "actions"):
+            actions = getattr(content, "actions", [])
 
     # 从 Fetch Account Data 步骤获取账户信息
     account_output = previous_outputs.get("Fetch Account Data")
     account = None
     positions = []
-    if account_output and account_output.additional_data:
-        account = account_output.additional_data.get("account")
-        positions = account_output.additional_data.get("positions", [])
+    if account_output and account_output.content and isinstance(account_output.content, dict):
+        account = account_output.content.get("account")
+        positions = account_output.content.get("positions", [])
 
     approved_actions = []
     rejected_actions = []
@@ -123,8 +121,7 @@ async def _risk_check(step_input: StepInput) -> StepOutput:
         logger.info(f"风控检查通过: {len(approved_actions)} 个操作待执行")
 
     return StepOutput(
-        content=result,
-        additional_data={
+        content={
             "risk_check_result": result,
             "approved_actions": approved_actions,
             "rejected_reasons": reasons,

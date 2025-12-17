@@ -26,6 +26,8 @@ def _build_kimi() -> OpenAILike:
 def _build_deepseek() -> DeepSeek:
     return DeepSeek(
         id=settings.DEEPSEEK_MODEL,
+        name="DeepSeek",
+        api_key=settings.DEEPSEEK_API_KEY,
         cache_response=CACHE_RESPONSES,
     )
 

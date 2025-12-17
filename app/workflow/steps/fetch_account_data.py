@@ -9,6 +9,7 @@ from loguru import logger
 from app.core.db import async_session_maker
 from app.virtual_trade.account import AccountOverview, build_account_overview
 from app.virtual_trade.position import PositionSummary, list_position_summaries
+from app.workflow.steps.utils import parse_step_input
 
 
 async def _fetch_account_data(step_input: StepInput) -> StepOutput:
@@ -17,17 +18,14 @@ async def _fetch_account_data(step_input: StepInput) -> StepOutput:
     从 step_input.input 中读取 account_number,
     查询数据库获取账户概览和持仓列表。
     """
-    input_data = step_input.input or {}
-    if hasattr(input_data, "model_dump"):
-        input_data = input_data.model_dump()
+    input_data = parse_step_input(step_input.input)
 
     account_number: str = input_data.get("account_number", "")
 
     if not account_number:
         logger.warning("未提供 account_number, 跳过账户获取")
         return StepOutput(
-            content=None,
-            additional_data={"account": None, "positions": []},
+            content={"account": None, "positions": []},
         )
 
     try:
@@ -45,8 +43,7 @@ async def _fetch_account_data(step_input: StepInput) -> StepOutput:
         )
 
         return StepOutput(
-            content=account,
-            additional_data={
+            content={
                 "account": account,
                 "positions": positions,
                 "account_number": account_number,
@@ -55,8 +52,7 @@ async def _fetch_account_data(step_input: StepInput) -> StepOutput:
     except Exception as e:
         logger.error(f"获取账户数据失败: {e}")
         return StepOutput(
-            content=None,
-            additional_data={"error": str(e), "account": None, "positions": []},
+            content={"error": str(e), "account": None, "positions": []},
         )
 
 
