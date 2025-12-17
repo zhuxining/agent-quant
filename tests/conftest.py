@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from fastapi.testclient import TestClient
 import pytest
 import pytest_asyncio
+from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 
@@ -17,7 +17,9 @@ async def session_maker(tmp_path_factory):
     """Create an async session factory backed by a temp SQLite database per test session."""
     tmp_dir = tmp_path_factory.mktemp("db")
     db_file = tmp_dir / "test_post.db"
-    engine = create_async_engine(f"sqlite+aiosqlite:///{db_file.as_posix()}", future=True)
+    engine = create_async_engine(
+        f"sqlite+aiosqlite:///{db_file.as_posix()}", future=True
+    )
     async with engine.begin() as conn:
         await conn.run_sync(UserBase.metadata.drop_all)
         await conn.run_sync(SQLModel.metadata.drop_all)
@@ -55,11 +57,11 @@ def client(session_maker, test_user: CreatedUser):
     async def _override_current_user():
         return test_user.instance
 
-    app.dependency_overrides[deps.get_db] = _override_get_db
+    app.dependency_overrides[deps.get_db_session] = _override_get_db
     app.dependency_overrides[deps.current_active_user] = _override_current_user
 
     with TestClient(app) as test_client:
         yield test_client
 
-    app.dependency_overrides.pop(deps.get_db, None)
+    app.dependency_overrides.pop(deps.get_db_session, None)
     app.dependency_overrides.pop(deps.current_active_user, None)

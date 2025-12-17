@@ -1,9 +1,12 @@
-EXAMPLE_INSTRUCTIONS = """
-Your task is to crawl a website starting from the provided homepage URL. Follow these guidelines:
+"""Agent 通用指令模板。"""
 
-1. Initial Access: Begin by accessing the homepage URL.
-2. Comprehensive Crawling: Recursively traverse the website to capture every accessible page and resource.
-3. Data Extraction: Extract all available content, including text, images, metadata, and embedded resources, while preserving the original structure and context.
-4. Detailed Reporting: Provide an extremely detailed and comprehensive response, including all extracted content without filtering or omissions.
-5. Data Integrity: Ensure that the extracted content accurately reflects the website without any modifications.
+# 交易 Agent 的核心指令已移至 trader_agent.py
+
+TRADING_GUIDELINES = """
+## 交易准则
+
+1. 风险管理优先
+2. 顺势而为
+3. 严格止损
+4. 控制仓位
 """

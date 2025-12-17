@@ -144,13 +144,17 @@ def apply_sell_to_position(
     if price <= 0:
         raise ValueError("price 必须大于 0")
     if quantity > position.available_quantity:
-        raise ValueError(f"可用持仓不足: 可用 {position.available_quantity}, 请求 {quantity}")
+        raise ValueError(
+            f"可用持仓不足: 可用 {position.available_quantity}, 请求 {quantity}"
+        )
 
     position.quantity -= quantity
     position.available_quantity -= quantity
     position.market_price = price
     position.market_value = price * Decimal(position.quantity)
-    position.unrealized_pnl = calculate_unrealized(position) if position.quantity > 0 else ZERO
+    position.unrealized_pnl = (
+        calculate_unrealized(position) if position.quantity > 0 else ZERO
+    )
     position.realized_pnl += realized_delta
     if position.quantity <= 0:
         position.quantity = 0
@@ -185,3 +189,14 @@ def calculate_unrealized(position: VirtualTradePosition) -> Decimal:
     if position.side is PositionSide.SHORT:
         return (position.average_cost - position.market_price) * qty
     return (position.market_price - position.average_cost) * qty
+
+
+__all__ = [
+    "PositionSummary",
+    "apply_buy_to_position",
+    "apply_sell_to_position",
+    "calculate_realized_pnl",
+    "calculate_unrealized",
+    "get_position_for_update",
+    "list_position_summaries",
+]

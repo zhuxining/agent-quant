@@ -1,166 +1,155 @@
-"""NOF1 工作流: 组装市场与账户快照, 调用交易 Agent 给出决策。"""
+"""NOF1 工作流: 基于 Agno Workflow 的量化交易决策流程。
+
+完整流程:
+1. Fetch Market Data   - 获取技术指标数据
+2. Fetch Account Data  - 获取账户/持仓数据
+3. Build Prompts       - 构建 Agent Prompt
+4. Agent Decision      - 调用 Agent 生成交易决策
+5. Risk Check          - 风控规则检查
+6. Execute Trades      - 执行交易指令
+7. Notification        - 日志记录与通知
+"""
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any
-
+from agno.db.postgres import AsyncPostgresDb
 from agno.db.sqlite import AsyncSqliteDb
 from agno.workflow.step import Step
-from agno.workflow.types import StepInput, StepOutput
 from agno.workflow.workflow import Workflow
+from pydantic import BaseModel
 
 from app.agent.trader_agent import trader_agent
-from app.prompt_build.account_snapshot import build_account_snapshot
-from app.prompt_build.technical_snapshot import build_technical_snapshots
+from app.core.config import settings
+from app.workflow.steps import (
+    build_prompts_step,
+    execute_trades_step,
+    fetch_account_data_step,
+    fetch_market_data_step,
+    notification_step,
+    risk_check_step,
+)
 
+# ------------------- 配置 ------------------- #
 
-def _as_dict(value: Any) -> Mapping[str, Any]:
-    if isinstance(value, Mapping):
-        return value
-    if hasattr(value, "model_dump"):
-        return value.model_dump()
-    return {}
-
-
-def _stringify(value: Any) -> str:
-    if value is None:
-        return ""
-    if isinstance(value, str):
-        return value
-    if isinstance(value, Mapping):
-        return "\n".join(f"{k}: {v}" for k, v in value.items())
-    return str(value)
-
-
-# 默认配置: 监控标的与账户
 DEFAULT_SYMBOLS = ["159300.SZ", "159500.SZ", "680536.SH", "159937.SZ"]
-DEFAULT_ACCOUNT_NUMBERS = ["ACC123456"]
+DEFAULT_ACCOUNT_NUMBER = "ACC123456"
 
 
-def get_technical_snapshot_prompt(step_input: StepInput) -> StepOutput:
-    """生成技术面快照 Markdown 片段。"""
-
-    raw_input = _as_dict(step_input.input)
-    technical_snapshots = raw_input.get("technical_snapshots", []) or []
-    snapshots = build_technical_snapshots(list(technical_snapshots))
-    return StepOutput(content=snapshots)
+# ------------------- 工作流输入结构 ------------------- #
 
 
-def get_account_snapshot_prompt(step_input: StepInput) -> StepOutput:
-    """生成账户与持仓快照 Markdown 片段。"""
+class NOF1WorkflowInput(BaseModel):
+    """NOF1 工作流输入参数。"""
 
-    raw_input = _as_dict(step_input.input)
-    account_info = _as_dict(raw_input.get("account_info", {}))
-    positions = raw_input.get("positions", []) or []
+    symbols: list[str] = DEFAULT_SYMBOLS
+    account_number: str = DEFAULT_ACCOUNT_NUMBER
 
-    snapshot_prompt = build_account_snapshot(
-        return_pct=account_info.get("return_pct"),
-        sharpe_ratio=account_info.get("sharpe_ratio"),
-        cash_available=account_info.get("cash_available"),
-        positions=positions,
-        total_market_value=account_info.get("total_market_value"),
-        total_unrealized_pnl=account_info.get("total_unrealized_pnl"),
+
+# ------------------- 数据库配置 ------------------- #
+
+
+def _get_workflow_db() -> AsyncPostgresDb | AsyncSqliteDb:
+    """根据配置返回工作流使用的数据库连接。"""
+    if settings.DATABASE_TYPE == "postgresql":
+        return AsyncPostgresDb(id="nof1_workflow_db", db_url=str(settings.postgre_url))
+    return AsyncSqliteDb(id="nof1_workflow_db", db_file="tmp/workflow.db")
+
+
+# ------------------- Agent Decision Step ------------------- #
+
+# Step 4 使用 trader_agent, 直接集成到 workflow
+agent_decision_step = Step(
+    name="Agent Decision",
+    agent=trader_agent(),
+    description="调用 Agent 生成交易决策",
+    max_retries=2,
+    timeout_seconds=120,
+)
+
+
+# ------------------- NOF1 Workflow 定义 ------------------- #
+
+
+def create_nof1_workflow(
+    session_id: str | None = None,
+    debug_mode: bool = False,
+) -> Workflow:
+    """创建 NOF1 工作流实例。
+
+    Args:
+        session_id: 会话 ID, 用于状态持久化
+        debug_mode: 调试模式
+
+    Returns:
+        配置好的 Workflow 实例
+    """
+    return Workflow(
+        name="nof1-workflow",
+        description="NOF1 量化交易决策工作流",
+        db=_get_workflow_db(),
+        input_schema=NOF1WorkflowInput,
+        session_id=session_id,
+        debug_mode=debug_mode,
+        steps=[
+            fetch_market_data_step,  # Step 1: 获取行情
+            fetch_account_data_step,  # Step 2: 获取账户
+            build_prompts_step,  # Step 3: 构建 Prompt
+            agent_decision_step,  # Step 4: Agent 决策
+            risk_check_step,  # Step 5: 风控检查
+            execute_trades_step,  # Step 6: 执行交易
+            notification_step,  # Step 7: 通知
+        ],
     )
 
-    return StepOutput(content=snapshot_prompt)
+
+# ------------------- 便捷运行函数 ------------------- #
 
 
-def run_trader_agent(step_input: StepInput) -> StepOutput:
-    """调用交易 Agent, 输入为技术+账户快照拼接后的提示。"""
-
-    technical_prompt: str = _stringify(step_input.get_step_content("Technical Snapshot"))
-    account_prompt: str = _stringify(step_input.get_step_content("Account Snapshot"))
-
-    prompt = f"{account_prompt}\n\n{technical_prompt}"
-
-    agent = trader_agent()
-    response = agent.run(prompt)
-
-    content = getattr(response, "content", response)
-    return StepOutput(content=content)
-
-
-# Steps
-technical_snapshot_step = Step(
-    name="Technical Snapshot",
-    executor=get_technical_snapshot_prompt,
-    description="获取技术指标快照片段",
-)
-
-account_snapshot_step = Step(
-    name="Account Snapshot",
-    executor=get_account_snapshot_prompt,
-    description="获取账户/持仓快照片段",
-)
-
-trader_step = Step(
-    name="Trader Agent Step",
-    executor=run_trader_agent,
-    description="基于快照调用交易 Agent 并给出决策",
-)
-
-
-# Create the workflow
-nof1_workflow = Workflow(
-    name="nof1-workflow",
-    description="生成技术与账户快照, 送入交易 Agent 输出决策",
-    db=AsyncSqliteDb(id="test_agent_db", db_file="tmp/local.db"),
-    steps=[
-        technical_snapshot_step,
-        account_snapshot_step,
-        trader_step,
-    ],
-)
-
-
-def prepare_workflow_input(
+async def run_nof1_workflow(
     symbols: list[str] | None = None,
     account_number: str | None = None,
-) -> dict[str, Any]:
-    """准备工作流输入数据。
+    session_id: str | None = None,
+    debug_mode: bool = False,
+):
+    """运行 NOF1 工作流。
 
-    根据 symbols 和 account_number 获取技术快照与账户信息,
-    返回符合 nof1_workflow 输入格式的字典。
+    Args:
+        symbols: 监控标的列表
+        account_number: 账户编号
+        session_id: 会话 ID
+        debug_mode: 调试模式
 
-    实际使用时需要:
-    1. 从数据源获取技术指标快照(调用 TechnicalIndicatorFeed)
-    2. 从虚拟交易系统获取账户信息与持仓
-
-    此处为示例,返回空数据结构。
+    Returns:
+        Workflow 运行结果
     """
-    from app.data_feed.technical_indicator import TechnicalSnapshot
+    workflow = create_nof1_workflow(
+        session_id=session_id,
+        debug_mode=debug_mode,
+    )
 
-    symbols = symbols or DEFAULT_SYMBOLS
-    account_number = account_number or DEFAULT_ACCOUNT_NUMBERS[0]
+    workflow_input = NOF1WorkflowInput(
+        symbols=symbols or DEFAULT_SYMBOLS,
+        account_number=account_number or DEFAULT_ACCOUNT_NUMBER,
+    )
 
-    # TODO: 实际实现时应调用数据源获取真实快照
-    # 例如:
-    # from app.data_feed.technical_indicator import TechnicalIndicatorFeed
-    # feed = TechnicalIndicatorFeed()
-    # technical_snapshots = feed.build_snapshots(symbols, ...)
-    technical_snapshots: list[TechnicalSnapshot] = []
-
-    # TODO: 实际实现时应从虚拟交易系统获取账户信息
-    # 例如:
-    # from app.virtual_trade.account import get_account_overview
-    # account_info = get_account_overview(session, account_number)
-    account_info = {
-        "return_pct": 0.0,
-        "sharpe_ratio": 0.0,
-        "cash_available": 100000.0,
-        "total_market_value": 100000.0,
-        "total_unrealized_pnl": 0.0,
-    }
-
-    # TODO: 实际实现时应从虚拟交易系统获取持仓列表
-    positions: list[dict[str, Any]] = []
-
-    return {
-        "technical_snapshots": technical_snapshots,
-        "account_info": account_info,
-        "positions": positions,
-    }
+    return await workflow.arun(input=workflow_input)
 
 
-__all__ = ["nof1_workflow", "prepare_workflow_input"]
+def run_workflow_sync(
+    symbols: list[str] | None = None,
+    account_number: str | None = None,
+):
+    """同步执行工作流(供非异步环境使用)。"""
+    import asyncio
+
+    return asyncio.run(run_nof1_workflow(symbols, account_number))
+
+
+__all__ = [
+    "DEFAULT_ACCOUNT_NUMBER",
+    "DEFAULT_SYMBOLS",
+    "NOF1WorkflowInput",
+    "create_nof1_workflow",
+    "run_nof1_workflow",
+    "run_workflow_sync",
+]
