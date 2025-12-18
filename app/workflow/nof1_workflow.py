@@ -31,7 +31,8 @@ from app.workflow.steps import (
 
 # ------------------- 配置 ------------------- #
 
-DEFAULT_SYMBOLS = ["159300.SZ", "159500.SZ", "680536.SH", "159937.SZ"]
+# 默认监控标的: 沪深300、中证500、科创50、黄金ETF
+DEFAULT_SYMBOLS = ["159300.SZ", "159500.SZ", "588000.SH", "159937.SZ"]
 DEFAULT_ACCOUNT_NUMBER = "ACC123456"
 
 

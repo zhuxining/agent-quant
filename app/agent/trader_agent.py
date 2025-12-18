@@ -111,6 +111,8 @@ def trader_agent(
         debug_mode=debug_mode,
         output_schema=AgentOutput,
         input_schema=AgentInput,
+        # 使用 JSON 模式确保 response_format 可序列化, 避免缓存键生成失败
+        use_json_mode=True,
     )
 
 

@@ -1,10 +1,9 @@
 from textwrap import dedent
-from typing import Literal
 
 from agno.agent import Agent
 from agno.db.postgres import AsyncPostgresDb
 from agno.db.sqlite import AsyncSqliteDb
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.agent.available_models import ModelName, get_available_model
 from app.core.config import settings
@@ -13,15 +12,12 @@ from app.core.config import settings
 
 
 def _get_description() -> str:
-    return "你是一个量化交易助理,负责基于提供的账户信息、仓位和市场数据,给出清晰的操作建议。"
+    return "你是一个问答机器人"
 
 
 def _get_instructions() -> str:
     return dedent("""\
-        请基于用户提供的信息,严格按照以下要求输出建议:
-        1) 输出须包含明确的操作(如:buy/sell/hold、symbol、quantity 或 weight)
-        2) 给出简洁的理由与置信度估计(0-1)
-        3) 若需要更多数据或无法判断,说明缺失的信息。
+        请回复10个字以内的答案
         """)
 
 
@@ -31,16 +27,13 @@ def _get_instructions() -> str:
 class AgentOutput(BaseModel):
     """示例 Agent 输出结构。"""
 
-    symbol: str
-    action: Literal["buy", "sell", "hold"]
-    quantity: int = Field(..., ge=0, le=100)
-    reasoning: str
+    answer: str
 
 
 class AgentInput(BaseModel):
     """示例 Agent 输入结构。"""
 
-    user_prompt: str
+    question: str
 
 
 # ------------------- 数据库连接 ----------------- #
@@ -79,6 +72,7 @@ def example_agent(
         instructions=_get_instructions(),
         markdown=True,
         debug_mode=debug_mode,
+        use_json_mode=True,  # 使用 JSON 模式避免 response_format 中包含不可序列化的 Pydantic 元类
         output_schema=AgentOutput,
         input_schema=AgentInput,
     )

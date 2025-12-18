@@ -9,8 +9,8 @@ from agno.models.openai.like import OpenAILike
 from app.core.config import settings
 
 ModelName = Literal["kimi", "deepseek"]
-if settings.ENVIRONMENT == "dev":
-    CACHE_RESPONSES = True
+# 开发环境启用模型响应缓存, 其他环境默认关闭以避免意外的序列化问题
+CACHE_RESPONSES = settings.ENVIRONMENT == "dev"
 
 
 def _build_kimi() -> OpenAILike:
