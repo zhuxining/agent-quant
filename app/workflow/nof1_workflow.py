@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from agno.db.postgres import AsyncPostgresDb
 from agno.db.sqlite import AsyncSqliteDb
 from agno.workflow.step import Step
@@ -44,6 +46,7 @@ class NOF1WorkflowInput(BaseModel):
 
     symbols: list[str] = DEFAULT_SYMBOLS
     account_number: str = DEFAULT_ACCOUNT_NUMBER
+    end_date: datetime | None = None  # 数据截止时间，None 表示使用实时数据
 
 
 # ------------------- 数据库配置 ------------------- #
@@ -109,6 +112,7 @@ def create_nof1_workflow(
 async def run_nof1_workflow(
     symbols: list[str] | None = None,
     account_number: str | None = None,
+    end_date: datetime | None = None,
     session_id: str | None = None,
     debug_mode: bool = False,
 ):
@@ -117,6 +121,7 @@ async def run_nof1_workflow(
     Args:
         symbols: 监控标的列表
         account_number: 账户编号
+        end_date: 数据截止时间，None 表示使用实时数据（用于回测）
         session_id: 会话 ID
         debug_mode: 调试模式
 
@@ -131,6 +136,7 @@ async def run_nof1_workflow(
     workflow_input = NOF1WorkflowInput(
         symbols=symbols or DEFAULT_SYMBOLS,
         account_number=account_number or DEFAULT_ACCOUNT_NUMBER,
+        end_date=end_date,
     )
 
     return await workflow.arun(input=workflow_input)
