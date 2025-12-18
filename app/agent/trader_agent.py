@@ -43,16 +43,12 @@ def _get_instructions() -> str:
 class AgentInput(BaseModel):
     """Agent 输入结构。
 
-    - candidate: 候选交易标的和市场数据
-    - account: 账户信息
-    - position: 持仓信息
-    - extra: 可选的额外上下文
+    - candidate: 候选交易标的的技术面数据和市场信息
+    - account: 账户信息与持仓详情(合并)
     """
 
     candidate: str
     account: str
-    position: str
-    extra: str | None = None
 
 
 class TradeAction(BaseModel):

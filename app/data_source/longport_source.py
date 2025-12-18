@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 
 from longport.openapi import AdjustType, Candlestick, Config, Period, QuoteContext
 import pandas as pd
@@ -17,15 +18,14 @@ class LongportSource:
     配置从环境变量或 settings 中读取。
     """
 
-    def __init__(self, config: Config | None = None) -> None:
+    def __init__(self) -> None:
         """初始化数据源。
 
         Args:
             config: Longport 配置对象, 如未提供则从环境变量读取
         """
-        if config is not None:
-            self._config = config
-        elif settings.LONGPORT_APP_KEY:
+
+        if settings.LONGPORT_APP_KEY:
             self._config = Config(
                 app_key=settings.LONGPORT_APP_KEY,
                 app_secret=settings.LONGPORT_APP_SECRET,
@@ -43,9 +43,9 @@ class LongportSource:
     def _fetch_raw_candles(
         self,
         symbol: str,
-        period: Period,
+        period: Any,
         count: int,
-        adjust: AdjustType,
+        adjust: Any,
         end_date: datetime | None,
     ) -> list[Candlestick]:
         """获取原始 K 线数据。
@@ -85,7 +85,7 @@ class LongportSource:
         interval: str | Period = "1d",
         end_date: datetime | None = None,
         count: int = 120,
-        adjust: AdjustType = AdjustType.ForwardAdjust,
+        adjust: Any = AdjustType.ForwardAdjust,
     ) -> pd.DataFrame:
         """获取 K 线数据并返回 DataFrame。
 

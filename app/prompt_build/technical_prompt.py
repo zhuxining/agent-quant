@@ -37,8 +37,8 @@ def _build_single_snapshot_block(snapshot: TechnicalSnapshot) -> str:
     ).strip()
 
 
-def build_technical_snapshots(snapshots: list[TechnicalSnapshot]) -> str:
-    """根据行情摘要列表构建整齐的多标的技术面提示片段。"""
+def build_technical_prompt(snapshots: list[TechnicalSnapshot]) -> str:
+    """根据技术面快照列表构建结构化的 Markdown 提示。"""
 
     if not snapshots:
         return "## 当前所有标的的市场数据\n\n(暂无可用数据)"
@@ -54,4 +54,4 @@ def build_technical_snapshots(snapshots: list[TechnicalSnapshot]) -> str:
     ).strip()
 
 
-__all__ = ["build_technical_snapshots"]
+__all__ = ["build_technical_prompt"]

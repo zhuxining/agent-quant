@@ -5,9 +5,9 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.prompt_build.account_snapshot import build_account_snapshot
+from app.prompt_build.account_prompt import build_account_prompt as format_account_prompt
 from app.virtual_trade.account import AccountOverview, build_account_overview
-from app.virtual_trade.position import list_position_summaries
+from app.virtual_trade.position import list_position_overviews
 
 
 async def build_account_prompt(
@@ -21,13 +21,13 @@ async def build_account_prompt(
 
     - 绩效指标(收益率/夏普)可由上游计算后传入;缺失时用 None 填充。
     - 账户现金/市值/浮盈亏直接来自 virtual_trade.account 的聚合结果。
-    - 持仓列表来自 virtual_trade.position 的 PositionSummary,并转成 prompt 结构。
+    - 持仓列表来自 virtual_trade.position 的 PositionOverview,并转成 prompt 结构。
     """
 
     account_overview: AccountOverview = await build_account_overview(
         session, account_number=account_number
     )
-    positions = await list_position_summaries(session, account_number)
+    positions = await list_position_overviews(session, account_number)
 
     position_dicts: list[dict[str, Any]] = [
         {
@@ -46,7 +46,7 @@ async def build_account_prompt(
     total_market_value = sum((p.market_value for p in positions), start=Decimal("0"))
     total_unrealized_pnl = sum((p.unrealized_pnl for p in positions), start=Decimal("0"))
 
-    return build_account_snapshot(
+    return format_account_prompt(
         return_pct=return_pct if return_pct is not None else account_overview.return_pct,
         sharpe_ratio=sharpe_ratio if sharpe_ratio is not None else account_overview.sharpe_ratio,
         cash_available=account_overview.cash_available,

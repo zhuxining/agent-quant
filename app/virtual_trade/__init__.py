@@ -22,13 +22,13 @@ from .order import (
     place_sell_order,
 )
 from .position import (
-    PositionSummary,
+    PositionOverview,
     apply_buy_to_position,
     apply_sell_to_position,
     calculate_realized_pnl,
     calculate_unrealized,
     get_position_for_update,
-    list_position_summaries,
+    list_position_overviews,
 )
 
 __all__ = [
@@ -41,7 +41,7 @@ __all__ = [
     "OrderExecutionResult",
     "PositionNotFoundError",
     # position
-    "PositionSummary",
+    "PositionOverview",
     "TradeAccountError",
     "TradeAccountNotFoundError",
     "TradeOrderError",
@@ -53,7 +53,7 @@ __all__ = [
     "calculate_unrealized",
     "get_account_snapshot",
     "get_position_for_update",
-    "list_position_summaries",
+    "list_position_overviews",
     "place_buy_order",
     "place_sell_order",
 ]

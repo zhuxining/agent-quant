@@ -8,7 +8,7 @@ from loguru import logger
 
 from app.core.db import async_session_maker
 from app.virtual_trade.account import AccountOverview, build_account_overview
-from app.virtual_trade.position import PositionSummary, list_position_summaries
+from app.virtual_trade.position import PositionOverview, list_position_overviews
 from app.workflow.steps.utils import parse_step_input
 
 
@@ -33,7 +33,7 @@ async def _fetch_account_data(step_input: StepInput) -> StepOutput:
             account: AccountOverview = await build_account_overview(
                 session, account_number=account_number
             )
-            positions: list[PositionSummary] = await list_position_summaries(
+            positions: list[PositionOverview] = await list_position_overviews(
                 session, account_number
             )
 

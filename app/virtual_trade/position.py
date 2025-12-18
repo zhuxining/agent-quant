@@ -14,7 +14,7 @@ ZERO = Decimal("0")
 
 
 @dataclass(slots=True)
-class PositionSummary:
+class PositionOverview:
     """面向 Prompt/Workflow 的持仓概要。"""
 
     symbol_exchange: str
@@ -31,9 +31,9 @@ class PositionSummary:
     notes: str | None
 
 
-async def list_position_summaries(
+async def list_position_overviews(
     session: AsyncSession, account_number: str
-) -> list[PositionSummary]:
+) -> list[PositionOverview]:
     """查询账户当前持仓,转换为适合 Prompt 的结构。"""
 
     statement = (
@@ -43,7 +43,7 @@ async def list_position_summaries(
     )
     result = await session.execute(statement)
     return [
-        PositionSummary(
+        PositionOverview(
             symbol_exchange=position.symbol_exchange,
             side=position.side,
             quantity=position.quantity,
@@ -188,11 +188,11 @@ def calculate_unrealized(position: VirtualTradePosition) -> Decimal:
 
 
 __all__ = [
-    "PositionSummary",
+    "PositionOverview",
     "apply_buy_to_position",
     "apply_sell_to_position",
     "calculate_realized_pnl",
     "calculate_unrealized",
     "get_position_for_update",
-    "list_position_summaries",
+    "list_position_overviews",
 ]

@@ -35,7 +35,7 @@ def _build_positions_block(positions: list[dict[str, Any]]) -> str:
     return "\n".join(blocks)
 
 
-def build_account_snapshot(
+def build_account_prompt(
     *,
     return_pct: float | Decimal | None,
     sharpe_ratio: float | Decimal | None,
@@ -73,4 +73,4 @@ def build_account_snapshot(
     ).strip()
 
 
-__all__ = ["build_account_snapshot"]
+__all__ = ["build_account_prompt"]

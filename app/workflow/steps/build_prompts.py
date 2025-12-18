@@ -9,12 +9,12 @@ from agno.workflow.step import Step
 from agno.workflow.types import StepInput, StepOutput
 from loguru import logger
 
-from app.prompt_build.account_snapshot import build_account_snapshot
-from app.prompt_build.technical_snapshot import build_technical_snapshots
+from app.prompt_build.account_prompt import build_account_prompt
+from app.prompt_build.technical_prompt import build_technical_prompt
 
 
 def _position_to_dict(p: Any) -> dict[str, Any]:
-    """将 PositionSummary 转换为字典。"""
+    """将 PositionOverview 转换为字典。"""
     return {
         "symbol": p.symbol_exchange,
         "quantity": p.quantity,
@@ -50,7 +50,7 @@ async def _build_prompts(step_input: StepInput) -> StepOutput:
         positions = account_output.content.get("positions", [])
 
     # 构建技术面 Prompt
-    technical_prompt = build_technical_snapshots(snapshots)
+    technical_prompt = build_technical_prompt(snapshots)
 
     # 构建账户 Prompt
     if account:
@@ -58,7 +58,7 @@ async def _build_prompts(step_input: StepInput) -> StepOutput:
         total_market_value = sum((p.market_value for p in positions), start=Decimal("0"))
         total_unrealized_pnl = sum((p.unrealized_pnl for p in positions), start=Decimal("0"))
 
-        account_prompt = build_account_snapshot(
+        account_prompt = build_account_prompt(
             return_pct=account.return_pct,
             sharpe_ratio=account.sharpe_ratio,
             cash_available=account.cash_available,
@@ -78,7 +78,6 @@ async def _build_prompts(step_input: StepInput) -> StepOutput:
         content={
             "candidate": technical_prompt,
             "account": account_prompt,
-            "position": "(已包含在账户信息中)",
         },
     )
 
