@@ -71,7 +71,9 @@ class UserFactory:
             await target_session.refresh(user)
             return CreatedUser(instance=user, password=password)
 
-        return await self._with_session(_create, session=session)
+        result = await self._with_session(_create, session=session)
+        assert result is not None
+        return result
 
     async def create_active(
         self,

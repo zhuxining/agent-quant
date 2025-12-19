@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
 from longport.openapi import AdjustType, Candlestick, Config, Period, QuoteContext
 import pandas as pd
@@ -142,7 +142,7 @@ def interval_to_period(interval: str | Period) -> Period:
         "1w": Period.Week,
         "1mo": Period.Month,
     }
-    return mapping.get(interval.lower(), Period.Day)
+    return cast(Period, mapping.get(interval.lower(), Period.Day))
 
 
 __all__ = [

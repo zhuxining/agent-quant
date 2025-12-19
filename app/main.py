@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+from agno.agent import Agent
 from agno.os import AgentOS
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,7 +59,7 @@ register_exception_handlers(app)
 
 if settings.all_cors_origins:
     app.add_middleware(
-        CORSMiddleware,
+        CORSMiddleware,  # ty:ignore[invalid-argument-type]
         allow_origins=settings.all_cors_origins,
         allow_credentials=True,
         allow_methods=["*"],
@@ -66,17 +67,20 @@ if settings.all_cors_origins:
     )
 
 if settings.ENVIRONMENT == "prod":
-    app.add_middleware(HTTPSRedirectMiddleware)
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.TRUSTED_HOSTS)
+    app.add_middleware(HTTPSRedirectMiddleware)  # ty:ignore[invalid-argument-type]
+    app.add_middleware(
+        TrustedHostMiddleware,  # ty:ignore[invalid-argument-type]
+        allowed_hosts=settings.TRUSTED_HOSTS,
+    )
 
-app.add_middleware(RequestLoggingMiddleware)
-app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)
+app.add_middleware(RequestLoggingMiddleware)  # ty:ignore[invalid-argument-type]
+app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)  # ty:ignore[invalid-argument-type]
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 # ———————————— 加载Agent ———————————— #
-example_agent = example_agent("kimi")
-trader_agent = trader_agent()
+example_agent: Agent = example_agent("kimi")
+trader_agent: Agent = trader_agent()
 
 # ———————————— 加载Workflow ———————————— #
 nof1_workflow = create_nof1_workflow()

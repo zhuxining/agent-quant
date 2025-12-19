@@ -46,7 +46,7 @@ class NOF1WorkflowInput(BaseModel):
 
     symbols: list[str] = DEFAULT_SYMBOLS
     account_number: str = DEFAULT_ACCOUNT_NUMBER
-    end_date: datetime | None = None  # 数据截止时间，None 表示使用实时数据
+    end_date: datetime | None = None  # 数据截止时间,None 表示使用实时数据
 
 
 # ------------------- 数据库配置 ------------------- #
@@ -121,7 +121,7 @@ async def run_nof1_workflow(
     Args:
         symbols: 监控标的列表
         account_number: 账户编号
-        end_date: 数据截止时间，None 表示使用实时数据（用于回测）
+        end_date: 数据截止时间,None 表示使用实时数据(用于回测)
         session_id: 会话 ID
         debug_mode: 调试模式
 
