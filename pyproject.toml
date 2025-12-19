@@ -53,7 +53,6 @@ fix = true
 unsafe-fixes = true
 
 [tool.ruff.lint]
-future-annotations = true
 select = [
     "E",    # pycodestyle errors
     "F",    # Pyflakes
@@ -70,8 +69,12 @@ select = [
     "FAST", # fastapi-specific
 ]
 ignore = [
-    "E501", # line too long
+    "E501",   # line too long
+    "RUF029", # functions declared async that do not await 
+    # "F401",   # imported but unused
+    # "F841",   # local variable assigned but never used
 ]
+unfixable = []
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
