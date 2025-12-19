@@ -10,8 +10,6 @@
 7. Notification        - 日志记录与通知
 """
 
-from __future__ import annotations
-
 from datetime import datetime
 
 from agno.db.postgres import AsyncPostgresDb

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from textwrap import dedent
 
 from app.data_feed.technical_indicator import TechnicalSnapshot

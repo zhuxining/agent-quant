@@ -1,7 +1,5 @@
 """Step 3: 构建 Agent Prompt。"""
 
-from __future__ import annotations
-
 from decimal import Decimal
 from typing import Any
 

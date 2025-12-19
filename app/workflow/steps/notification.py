@@ -1,7 +1,5 @@
 """Step 7: 日志记录与通知。"""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import datetime
 

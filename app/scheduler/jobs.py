@@ -4,8 +4,6 @@
 - nof1_workflow_job: 每小时运行一次 NOF1 工作流
 """
 
-from __future__ import annotations
-
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from loguru import logger
@@ -28,17 +26,20 @@ async def nof1_workflow_job() -> None:
 
 def start_scheduler() -> None:
     """启动调度器并注册任务。"""
-    # 注册 NOF1 工作流任务: 每小时执行一次
+    from datetime import datetime
+
+    # 注册 NOF1 工作流任务: 立即执行一次, 然后每小时执行一次
     scheduler.add_job(
         nof1_workflow_job,
         trigger=IntervalTrigger(hours=1),
         id="nof1_workflow_hourly",
         name="NOF1 Workflow (Hourly)",
+        next_run_time=datetime.now(),
         replace_existing=True,
     )
 
     scheduler.start()
-    logger.info("🚀 Scheduler started with NOF1 workflow job (hourly)")
+    logger.info("🚀 Scheduler started: NOF1 workflow job will run immediately and then hourly")
 
 
 def stop_scheduler() -> None:

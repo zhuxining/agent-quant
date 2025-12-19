@@ -34,6 +34,8 @@ uv run pytest
 | `app/models/`       | SQLModel + Pydantic 模型,含虚拟交易相关实体。               |
 | `app/virtual_trade/`| 虚拟交易账户、订单、持仓的业务逻辑。                       |
 | `app/workflow/`     | 工作流/调度逻辑(如 nof1_workflow)。                         |
+| `app/scheduler/`    | 后台定时任务(基于 APScheduler),定期运行工作流。        |
+| `app/backtest/`     | 回测引擎与性能分析(与 `quantstats` 集成)。                 |
 | `app/utils/`        | 响应包装、异常、日志、指标计算等跨层工具。                  |
 | `tests/`            | pytest 用例、fixture、测试辅助工具。                        |
 | `serve.py`          | 本地运行脚本,封装 `uvicorn`/`granian` 启动逻辑。            |

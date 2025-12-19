@@ -1,7 +1,5 @@
 """持仓相关的通用操作。"""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from decimal import Decimal
 

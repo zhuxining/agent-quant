@@ -1,7 +1,5 @@
 """本地模拟交易的下单与结算工具。"""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from decimal import Decimal
 

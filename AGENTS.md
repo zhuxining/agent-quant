@@ -48,6 +48,8 @@ The application follows a modular architecture with clear separation of concerns
 - **`app/models/`**: SQLModel database entities and Pydantic validation models
 - **`app/virtual_trade/`**: Virtual trading business logic (accounts, orders, positions)
 - **`app/workflow/`**: Workflow orchestration (e.g., NOF1 workflow)
+- **`app/scheduler/`**: Background task management using APScheduler (jobs definition and registry)
+- **`app/backtest/`**: Backtesting engine integrating history data and QuantStats analysis
 - **`app/utils/`**: Cross-cutting utilities (responses, exceptions, logging, calculators)
 
 ### Data Flow
@@ -73,7 +75,7 @@ Example reference: `app/models/post.py`
 
 - **Language**: All responses and documentation in Chinese
 - **Linting**: Ruff with line length 100, auto-fix enabled
-- **Imports**: Organized with isort, future annotations enabled
+- **Imports**: Organized with isort; **no longer** require `from __future__ import annotations` (leverages Python 3.14 PEP 649 deferred evaluation)
 - **Design**: Keep code simple and practical, avoid over-engineering
 - **Complexity**: Minimize cyclomatic complexity, maximize code reuse
 - **Modifications**: Minimize changes to unrelated modules
@@ -99,6 +101,19 @@ Example reference: `app/models/post.py`
 - Prompts assembled in `app/prompt_build/` with modular fragments
 - Trader agent example: `app/agent/trader_agent.py`
 - Workflow orchestration in `app/workflow/`
+- Scheduler integration in `app/scheduler/`
+
+### Scheduler Development
+
+- Framework: APScheduler (`AsyncIOScheduler`)
+- Lifecycle: Started within `app/main.py` lifespan context
+- Configuration: Tasks defined in `app/scheduler/jobs.py`
+
+### Backtest Development
+
+- Core Library: `quantstats` for performance metrics and reporting
+- Logic: Reuse `app/workflow/` by passing `end_date` to simulate historical points
+- Report: Generates HTML/JSON performance reports for trading strategies
 
 ### Database Migrations
 

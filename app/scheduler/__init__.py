@@ -1,7 +1,5 @@
 """调度模块: 后台定时任务管理。"""
 
-from __future__ import annotations
-
 from app.scheduler.jobs import scheduler, start_scheduler, stop_scheduler
 
 __all__ = [

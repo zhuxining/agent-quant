@@ -1,7 +1,5 @@
 """Step 2: 获取账户和持仓数据。"""
 
-from __future__ import annotations
-
 from agno.workflow.step import Step
 from agno.workflow.types import StepInput, StepOutput
 from loguru import logger

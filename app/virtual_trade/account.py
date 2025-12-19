@@ -1,7 +1,5 @@
 """交易账户相关的核心操作。"""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from decimal import Decimal
 import uuid

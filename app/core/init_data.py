@@ -44,7 +44,7 @@ async def create_trade_account() -> VirtualTradeAccountRead:
         )
         existing_account = result.scalars().first()
         if existing_account:
-            logger.info("Active trade account already exists.")
+            logger.warning("Active trade account already exists.")
             return VirtualTradeAccountRead.model_validate(existing_account)
         new_account_data = VirtualTradeAccountCreate(
             name="Primary Account",

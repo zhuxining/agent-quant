@@ -1,7 +1,5 @@
 """Prompt 格式化工具函数。"""
 
-from __future__ import annotations
-
 from collections.abc import Iterable
 from decimal import Decimal
 

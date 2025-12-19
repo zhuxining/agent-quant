@@ -1,7 +1,5 @@
 """Step 1: 获取市场行情数据。"""
 
-from __future__ import annotations
-
 from datetime import datetime
 
 from agno.workflow.step import Step
