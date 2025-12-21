@@ -1,3 +1,14 @@
+from .backtest_daily_equity import (
+    BacktestDailyEquity,
+    BacktestDailyEquityCreate,
+    BacktestDailyEquityRead,
+)
+from .backtest_run import (
+    BacktestRun,
+    BacktestRunCreate,
+    BacktestRunRead,
+    BacktestStatus,
+)
 from .log import Log, LogCreate, LogLevel, LogRead
 from .post import Post, PostCreate, PostRead, PostUpdate
 from .user import User, UserCreate, UserRead, UserUpdate
@@ -32,6 +43,13 @@ from .virtual_trade_stock import (
 )
 
 __all__ = [
+    "BacktestDailyEquity",
+    "BacktestDailyEquityCreate",
+    "BacktestDailyEquityRead",
+    "BacktestRun",
+    "BacktestRunCreate",
+    "BacktestRunRead",
+    "BacktestStatus",
     "Log",
     "LogCreate",
     "LogLevel",

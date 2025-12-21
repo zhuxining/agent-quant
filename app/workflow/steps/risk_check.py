@@ -79,10 +79,20 @@ async def _risk_check(step_input: StepInput) -> StepOutput:
     actions: list[Any] = []
     if agent_output and agent_output.content:
         content = agent_output.content
+        # 打印 Agent 原始输出用于调试
+        logger.info(f"Agent Decision 原始输出: {content}")
         if isinstance(content, dict):
             actions = content.get("actions", [])
         elif hasattr(content, "actions"):
             actions = getattr(content, "actions", [])
+        # 打印解析后的 actions
+        for i, action in enumerate(actions):
+            logger.info(
+                f"Action[{i}]: symbol={getattr(action, 'symbol', 'N/A')}, "
+                f"action={getattr(action, 'action', 'N/A')}, "
+                f"quantity={getattr(action, 'quantity', 'N/A')}, "
+                f"weight={getattr(action, 'weight', 'N/A')}"
+            )
 
     # 从 Fetch Account Data 步骤获取账户信息
     account_output = previous_outputs.get("Fetch Account Data")

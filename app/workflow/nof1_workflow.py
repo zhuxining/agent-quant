@@ -54,7 +54,7 @@ def _get_workflow_db() -> AsyncPostgresDb | AsyncSqliteDb:
     """根据配置返回工作流使用的数据库连接。"""
     if settings.DATABASE_TYPE == "postgresql":
         return AsyncPostgresDb(id="nof1_workflow_db", db_url=str(settings.postgre_url))
-    return AsyncSqliteDb(id="nof1_workflow_db", db_file="tmp/workflow.db")
+    return AsyncSqliteDb(id="nof1_workflow_db", db_file="tmp/local.db")
 
 
 # ------------------- Agent Decision Step ------------------- #

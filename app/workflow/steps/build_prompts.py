@@ -70,6 +70,7 @@ async def _build_prompts(step_input: StepInput) -> StepOutput:
     logger.info(
         f"Prompt 构建完成: 技术面={len(technical_prompt)}字符, 账户={len(account_prompt)}字符"
     )
+    logger.info(f"Prompt 构建完成: 技术面={(technical_prompt)}, 账户={(account_prompt)}")
 
     # 返回符合 AgentInput schema 的结构
     return StepOutput(

@@ -50,6 +50,12 @@ async def _execute_single_action(
     symbol = getattr(action, "symbol", "")
     quantity = getattr(action, "quantity", 0) or 0
 
+    # 调试日志
+    logger.info(
+        f"执行交易: symbol={symbol}, action={action_type}, quantity={quantity}, "
+        f"account={account_number}"
+    )
+
     # 跳过 hold/wait
     if action_type in ("hold", "wait"):
         return None, None
@@ -58,12 +64,16 @@ async def _execute_single_action(
         return None, "缺少 symbol"
 
     if quantity <= 0:
-        return None, f"{symbol}: quantity 必须为正数"
+        return None, f"{symbol}: quantity 必须为正数 (当前值: {quantity})"
 
     # 获取当前价格
     price = _get_current_price(symbol)
     if price is None:
         return None, f"{symbol}: 无法获取当前价格"
+
+    logger.info(
+        f"交易详情: {symbol} {action_type} {quantity} 股 @ {price}, 总金额={price * quantity}"
+    )
 
     try:
         if action_type == "buy":
