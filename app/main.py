@@ -31,12 +31,15 @@ async def lifespan(app: FastAPI):
     await create_trade_account()
     logger.success("Startup initialization complete")
 
-    try:
-        start_scheduler()
+    if settings.SCHEDULER_ENABLED:
+        try:
+            start_scheduler()
+            yield
+        finally:
+            stop_scheduler()
+            logger.info("FastAPI app shutdown")
+    else:
         yield
-    finally:
-        stop_scheduler()
-        logger.info("FastAPI app shutdown")
 
 
 def custom_generate_unique_id(route: APIRoute):

@@ -12,10 +12,10 @@ import pandas as pd
 from app.data_source.longport_source import LongportSource
 from app.utils.talib_calculator import IndicatorCalculator
 
-DEFAULT_LONG_TERM_COUNT = 200
-DEFAULT_SHORT_TERM_COUNT = 240
-LONG_TERM_PERIOD = Period.Day
-SHORT_TERM_PERIOD = Period.Min_60
+DEFAULT_DAILY_TERM_COUNT = 200
+DEFAULT_HOURLY_TERM_COUNT = 240
+DAILY_TERM_PERIOD = Period.Day
+HOURLY_TERM_PERIOD = Period.Min_60
 
 
 @dataclass(slots=True)
@@ -46,47 +46,75 @@ class TechnicalFeedSlice:
 class TechnicalSnapshot:
     """面向 Prompt/Workflow 的行情摘要。
 
-    整合了短期和长期的技术指标数据,用于生成交易决策所需的完整市场视图。
+    整合了小时线和日线的技术指标数据,用于生成交易决策所需的完整市场视图。
+
+    命名规则:
+    - hourly_*_series: 小时线指标序列(最近 10 个)
+    - hourly_*_latest: 小时线指标当前值
+    - daily_*_series: 日线指标序列(最近 10 个)
+    - daily_*_latest: 日线指标当前值
 
     Attributes:
         symbol: 股票代码
-        current_price: 当前价格(短期最新收盘价)
-        current_ema20: 当前 20 周期 EMA(短期)
-        current_macd: 当前 MACD 值(短期)
-        current_rsi7: 当前 7 周期 RSI(短期)
-        short_term_mid_prices: 短期中间价序列(最近 10 个)
-        short_term_ema20: 短期 EMA20 序列(最近 10 个)
-        short_term_macd: 短期 MACD 序列(最近 10 个)
-        short_term_rsi7: 短期 RSI7 序列(最近 10 个)
-        short_term_rsi14: 短期 RSI14 序列(最近 10 个)
-        long_term_ema20: 长期 EMA20 当前值
-        long_term_ema50: 长期 EMA50 当前值
-        long_term_atr3: 长期 ATR3 当前值(短期波动)
-        long_term_atr14: 长期 ATR14 当前值(标准波动)
-        long_term_volume_current: 长期最新成交量
-        long_term_volume_avg: 长期平均成交量
-        long_term_macd: 长期 MACD 序列(最近 10 个)
-        long_term_rsi14: 长期 RSI14 序列(最近 10 个)
+        hourly_mid_prices_series: 小时线中间价序列
+        hourly_ema20_series: 小时线 EMA20 序列
+        hourly_macd_series: 小时线 MACD 序列
+        hourly_macd_hist_series: 小时线 MACD 柱状图序列
+        hourly_rsi7_series: 小时线 RSI7 序列
+        hourly_rsi14_series: 小时线 RSI14 序列
+        daily_current_price: 日线当前价格
+        daily_mid_prices: 日线中间价
+        daily_change_pct_1: 日线 1 日涨幅
+        daily_change_pct_5: 日线 5 日涨幅
+        daily_ema5_latest: 日线 EMA5 当前值
+        daily_ema10_latest: 日线 EMA10 当前值
+        daily_ema20_latest: 日线 EMA20 当前值
+        daily_ema60_latest: 日线 EMA60 当前值
+        daily_macd_series: 日线 MACD 序列
+        daily_macd_hist_series: 日线 MACD 柱状图序列
+        daily_adx_series: 日线 ADX 序列
+        daily_cci_series: 日线 CCI 序列
+        daily_rsi7_latest: 日线 RSI7 当前值
+        daily_rsi14_latest: 日线 RSI14 当前值
+        daily_stoch_k_latest: 日线 Stoch K 当前值
+        daily_stoch_d_latest: 日线 Stoch D 当前值
+        daily_atr3_latest: 日线 ATR3 当前值
+        daily_atr14_latest: 日线 ATR14 当前值
+        daily_obv_latest: 日线 OBV 当前值
+        daily_ad_latest: 日线 A/D 当前值
+        daily_volume_latest: 日线最新成交量
+        daily_volume_sma_5: 日线 5 日均成交量
+        daily_volume_sma_10: 日线 10 日均成交量
+        daily_volume_sma_20: 日线 20 日均成交量
+
     """
 
     symbol: str
-    current_price: float | None
-    current_ema20: float | None
-    current_macd: float | None
-    current_rsi7: float | None
-    short_term_mid_prices: list[float]
-    short_term_ema20: list[float]
-    short_term_macd: list[float]
-    short_term_rsi7: list[float]
-    short_term_rsi14: list[float]
-    long_term_ema20: float | None
-    long_term_ema50: float | None
-    long_term_atr3: float | None
-    long_term_atr14: float | None
-    long_term_volume_current: float | None
-    long_term_volume_avg: float | None
-    long_term_macd: list[float]
-    long_term_rsi14: list[float]
+    hourly_mid_prices_series: list[float]
+    hourly_ema20_series: list[float]
+    hourly_macd_series: list[float]
+    hourly_macd_hist_series: list[float]
+    hourly_rsi7_series: list[float]
+    hourly_rsi14_series: list[float]
+
+    daily_ema20_latest: float | None
+    daily_ema60_latest: float | None
+    daily_atr3_latest: float | None
+    daily_atr14_latest: float | None
+    daily_volume_latest: float | None
+    daily_volume_sma_5: float | None
+
+    daily_volume_sma_20: float | None
+    daily_macd_series: list[float]
+    daily_macd_hist_series: list[float]
+    daily_rsi14_series: list[float]
+    daily_rsi14_latest: float | None
+    daily_change_pct_1: float | None
+    daily_change_pct_5: float | None
+    daily_stoch_k_latest: float | None
+    daily_stoch_d_latest: float | None
+    daily_obv_latest: float | None
+    daily_ad_latest: float | None
 
 
 class TechnicalIndicatorFeed:
@@ -118,39 +146,39 @@ class TechnicalIndicatorFeed:
     def build(
         self,
         symbol: str,
-        long_term_count: int = DEFAULT_LONG_TERM_COUNT,
-        short_term_count: int = DEFAULT_SHORT_TERM_COUNT,
+        daily_term_count: int = DEFAULT_DAILY_TERM_COUNT,
+        hourly_term_count: int = DEFAULT_HOURLY_TERM_COUNT,
         end_date: datetime | None = None,
     ) -> dict[str, TechnicalFeedSlice]:
         """构建包含长期和短期两个时间周期的行情切片,附带完整技术指标。
 
         Args:
             symbol: 股票代码
-            long_term_count: 长期数据的 K 线数量
-            short_term_count: 短期数据的 K 线数量
+            daily_term_count: 长期数据的 K 线数量
+            hourly_term_count: 短期数据的 K 线数量
             end_date: 结束日期,None 表示使用当前时间
 
         Returns:
-            包含 'long_term' 和 'short_term' 两个键的字典
+            包含 'daily_term' 和 'hourly_term' 两个键的字典
         """
 
-        long_term_slice = self.build_long_term(
+        daily_term_slice = self.build_daily_term(
             symbol=symbol,
-            count=long_term_count,
+            count=daily_term_count,
             end_date=end_date,
         )
-        short_term_slice = self.build_short_term(
+        hourly_term_slice = self.build_hourly_term(
             symbol=symbol,
-            count=short_term_count,
+            count=hourly_term_count,
             end_date=end_date,
         )
-        return {"long_term": long_term_slice, "short_term": short_term_slice}
+        return {"daily_term": daily_term_slice, "hourly_term": hourly_term_slice}
 
     def build_snapshot(
         self,
         symbol: str,
-        long_term_count: int = DEFAULT_LONG_TERM_COUNT,
-        short_term_count: int = DEFAULT_SHORT_TERM_COUNT,
+        daily_term_count: int = DEFAULT_DAILY_TERM_COUNT,
+        hourly_term_count: int = DEFAULT_HOURLY_TERM_COUNT,
         end_date: datetime | None = None,
     ) -> TechnicalSnapshot:
         """构建单个标的的行情摘要。
@@ -163,17 +191,18 @@ class TechnicalIndicatorFeed:
 
         slices = self.build(
             symbol=symbol,
-            long_term_count=long_term_count,
-            short_term_count=short_term_count,
+            daily_term_count=daily_term_count,
+            hourly_term_count=hourly_term_count,
             end_date=end_date,
         )
-        return self._to_snapshot(symbol, slices["short_term"], slices["long_term"])
+        realtime_data = self.source.get_realtime_quote(symbol)
+        return self._to_snapshot(symbol, realtime_data, slices["hourly_term"], slices["daily_term"])
 
     def build_snapshots(
         self,
         symbols: Sequence[str],
-        long_term_count: int = DEFAULT_LONG_TERM_COUNT,
-        short_term_count: int = DEFAULT_SHORT_TERM_COUNT,
+        daily_term_count: int = DEFAULT_DAILY_TERM_COUNT,
+        hourly_term_count: int = DEFAULT_HOURLY_TERM_COUNT,
         end_date: datetime | None = None,
     ) -> list[TechnicalSnapshot]:
         """批量构建多个标的的行情摘要。
@@ -187,39 +216,39 @@ class TechnicalIndicatorFeed:
         return [
             self.build_snapshot(
                 symbol=symbol,
-                long_term_count=long_term_count,
-                short_term_count=short_term_count,
+                daily_term_count=daily_term_count,
+                hourly_term_count=hourly_term_count,
                 end_date=end_date,
             )
             for symbol in symbols
         ]
 
-    def build_long_term(
+    def build_daily_term(
         self,
         symbol: str,
-        count: int = DEFAULT_LONG_TERM_COUNT,
+        count: int = DEFAULT_DAILY_TERM_COUNT,
         end_date: datetime | None = None,
     ) -> TechnicalFeedSlice:
         """单独构建长线(日线)行情切片。"""
 
         return self._build_slice(
             symbol=symbol,
-            period=LONG_TERM_PERIOD,
+            period=DAILY_TERM_PERIOD,
             count=count,
             end_date=end_date,
         )
 
-    def build_short_term(
+    def build_hourly_term(
         self,
         symbol: str,
-        count: int = DEFAULT_SHORT_TERM_COUNT,
+        count: int = DEFAULT_HOURLY_TERM_COUNT,
         end_date: datetime | None = None,
     ) -> TechnicalFeedSlice:
         """单独构建短线(小时线)行情切片。"""
 
         return self._build_slice(
             symbol=symbol,
-            period=SHORT_TERM_PERIOD,
+            period=HOURLY_TERM_PERIOD,
             count=count,
             end_date=end_date,
         )
@@ -230,15 +259,18 @@ class TechnicalIndicatorFeed:
         *,
         end_date: datetime | None = None,
     ) -> Decimal | None:
-        """获取最新收盘价。
+        """获取最新K线收盘价。
 
-        从短期数据中提取最近一根 K 线的收盘价,用于快速查询当前价格。
+        从小时线最后一条数据获取收盘价,支持历史回测。
+
+        Args:
+            symbol: 股票代码
+            end_date: 结束日期,用于回测历史数据
 
         Returns:
             收盘价的 Decimal 值,如果无数据则返回 None
         """
-
-        slice_ = self.build_short_term(
+        slice_ = self.build_hourly_term(
             symbol=symbol,
             count=1,
             end_date=end_date,
@@ -271,14 +303,38 @@ class TechnicalIndicatorFeed:
         return TechnicalFeedSlice(symbol=symbol, period=period, frame=enriched)
 
     def _apply_indicators(self, frame: pd.DataFrame) -> pd.DataFrame:
-        """顺序计算中间价与各类指标,确保 DataFrame 持续扩展。"""
+        """按分类顺序计算技术指标。
 
-        enriched = self.indicator_calculator.compute_mid_price(frame)
-        enriched = self.indicator_calculator.compute_change(enriched)
+        顺序遵循逻辑链: 基础 → 趋势 → 强度 → 动量 → 波动 → 成交量 → 聚合
+        """
+
+        # 1. 基础指标
+        enriched = self.indicator_calculator.compute_change(frame)
+        enriched = self.indicator_calculator.compute_mid_price(enriched)
+
+        # 2. 趋势方向指标
         enriched = self.indicator_calculator.compute_ema(enriched)
         enriched = self.indicator_calculator.compute_macd(enriched)
+
+        # 3. 趋势强度指标
+        enriched = self.indicator_calculator.compute_adx(enriched)
+
+        # 4. 动量指标
+        enriched = self.indicator_calculator.compute_cci(enriched)
         enriched = self.indicator_calculator.compute_rsi(enriched)
+        enriched = self.indicator_calculator.compute_stoch(enriched)
+
+        # 5. 波动指标
         enriched = self.indicator_calculator.compute_atr(enriched)
+        enriched = self.indicator_calculator.compute_bbands(enriched)
+
+        # 6. 成交量指标
+        enriched = self.indicator_calculator.compute_obv(enriched)
+        enriched = self.indicator_calculator.compute_ad(enriched)
+
+        # 7. 聚合指标
+        enriched = self.indicator_calculator.compute_volume_sma(enriched)
+
         return enriched
 
     @staticmethod
@@ -317,51 +373,52 @@ class TechnicalIndicatorFeed:
             return None
 
     def _to_snapshot(
-        self, symbol: str, short_term: TechnicalFeedSlice, long_term: TechnicalFeedSlice
+        self,
+        symbol: str,
+        realtime_data: dict[str, Any],
+        hourly_term: TechnicalFeedSlice,
+        daily_term: TechnicalFeedSlice,
     ) -> TechnicalSnapshot:
         """将长短期切片转换为结构化的行情摘要。
 
         提取当前值和历史序列,组装成适合 Prompt 使用的数据结构。
         """
-        latest_short = short_term.latest
-        latest_long = long_term.latest
-        # 计算长期平均成交量
-
-        volume_series = long_term.frame.get("volume")
-        volume_avg = None
-        if volume_series is not None and hasattr(volume_series, "dropna"):
-            clean = volume_series.dropna()
-            if not clean.empty:
-                volume_avg = float(clean.mean())
+        latest_long = daily_term.latest
 
         # 组装摘要数据结构
         return TechnicalSnapshot(
             symbol=symbol,
-            current_price=self._safe_float(latest_short.get("close")),
-            current_ema20=self._safe_float(latest_short.get("ema_20")),
-            current_macd=self._safe_float(latest_short.get("macd")),
-            current_rsi7=self._safe_float(latest_short.get("rsi_7")),
-            short_term_mid_prices=self._series_tail(short_term.frame, "mid_price"),
-            short_term_ema20=self._series_tail(short_term.frame, "ema_20"),
-            short_term_macd=self._series_tail(short_term.frame, "macd"),
-            short_term_rsi7=self._series_tail(short_term.frame, "rsi_7"),
-            short_term_rsi14=self._series_tail(short_term.frame, "rsi_14"),
-            long_term_ema20=self._safe_float(latest_long.get("ema_20")),
-            long_term_ema50=self._safe_float(latest_long.get("ema_50")),
-            long_term_atr3=self._safe_float(latest_long.get("atr_3")),
-            long_term_atr14=self._safe_float(latest_long.get("atr_14")),
-            long_term_volume_current=self._safe_float(latest_long.get("volume")),
-            long_term_volume_avg=volume_avg,
-            long_term_macd=self._series_tail(long_term.frame, "macd"),
-            long_term_rsi14=self._series_tail(long_term.frame, "rsi_14"),
+            hourly_mid_prices_series=self._series_tail(hourly_term.frame, "mid_price"),
+            hourly_ema20_series=self._series_tail(hourly_term.frame, "ema_20"),
+            hourly_macd_series=self._series_tail(hourly_term.frame, "macd"),
+            hourly_macd_hist_series=self._series_tail(hourly_term.frame, "macd_hist"),
+            hourly_rsi7_series=self._series_tail(hourly_term.frame, "rsi_7"),
+            hourly_rsi14_series=self._series_tail(hourly_term.frame, "rsi_14"),
+            daily_ema20_latest=self._safe_float(latest_long.get("ema_20")),
+            daily_ema60_latest=self._safe_float(latest_long.get("ema_60")),
+            daily_atr3_latest=self._safe_float(latest_long.get("atr_3")),
+            daily_atr14_latest=self._safe_float(latest_long.get("atr_14")),
+            daily_volume_latest=self._safe_float(latest_long.get("volume")),
+            daily_volume_sma_5=self._safe_float(latest_long.get("volume_sma_5")),
+            daily_volume_sma_20=self._safe_float(latest_long.get("volume_sma_20")),
+            daily_macd_series=self._series_tail(daily_term.frame, "macd"),
+            daily_macd_hist_series=self._series_tail(daily_term.frame, "macd_hist"),
+            daily_rsi14_series=self._series_tail(daily_term.frame, "rsi_14"),
+            daily_rsi14_latest=self._safe_float(latest_long.get("rsi_14")),
+            daily_change_pct_1=self._safe_float(latest_long.get("change_pct_1")),
+            daily_change_pct_5=self._safe_float(latest_long.get("change_pct_5")),
+            daily_stoch_k_latest=self._safe_float(latest_long.get("stoch_k_14")),
+            daily_stoch_d_latest=self._safe_float(latest_long.get("stoch_d_14")),
+            daily_obv_latest=self._safe_float(latest_long.get("obv")),
+            daily_ad_latest=self._safe_float(latest_long.get("ad")),
         )
 
 
 __all__ = [
-    "DEFAULT_LONG_TERM_COUNT",
-    "DEFAULT_SHORT_TERM_COUNT",
-    "LONG_TERM_PERIOD",
-    "SHORT_TERM_PERIOD",
+    "DAILY_TERM_PERIOD",
+    "DEFAULT_DAILY_TERM_COUNT",
+    "DEFAULT_HOURLY_TERM_COUNT",
+    "HOURLY_TERM_PERIOD",
     "TechnicalFeedSlice",
     "TechnicalIndicatorFeed",
     "TechnicalSnapshot",

@@ -116,6 +116,31 @@ class LongportSource:
         frame["datetime"] = pd.to_datetime(frame["timestamp"], unit="s")
         return frame.sort_values("datetime").reset_index(drop=True)
 
+    def get_realtime_quote(self, symbol: str) -> dict[str, Any]:
+        """获取实时报价。
+
+        使用 quote_ctx.quote 获取最新价, 返回 SecurityQuote 对象列表。
+
+        Returns:
+            包含价格、OHLC、成交量等字段的字典, 若无数据返回空字典
+        """
+
+        quotes = self._quote_ctx.quote([symbol])
+
+        quote = quotes[0]
+
+        return {
+            "symbol": quote.symbol,
+            "price": float(quote.last_done),
+            "prev_close": float(quote.prev_close),
+            "open": float(quote.open),
+            "high": float(quote.high),
+            "low": float(quote.low),
+            "volume": float(quote.volume),
+            "turnover": float(quote.turnover),
+            "timestamp": quote.timestamp,
+        }
+
 
 def interval_to_period(interval: str | Period) -> Period:
     """将字符串周期转换为 Period 枚举。

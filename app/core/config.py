@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["dev", "test", "prod"] = "dev"
     LOG_LEVEL: str = "INFO"  # Logging level
     SWAGGER_UI_ENABLED: bool = True  # Swagger UI, Change in production
+    SCHEDULER_ENABLED: bool = False  # 是否启用定时任务
 
     # Database Settings
     DATABASE_TYPE: Literal["postgresql", "sqlite"] = "sqlite"
