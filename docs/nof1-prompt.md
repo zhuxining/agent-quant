@@ -1,6 +1,6 @@
 # nof1.ai Alpha Arena 提示词工程逆向分析
 
-> **逆向工程说明**: 本文档基于 nof1.ai Alpha Arena 的公开文档、交易行为模式、API 响应格式和社区讨论,系统性地逆向推导出其 System Prompt 和 User Prompt 的完整结构，欢迎各路大佬戳戳评论，一起来进行这个有趣的实验。
+> **逆向工程说明**: 本文档基于 nof1.ai Alpha Arena 的公开文档、交易行为模式、API 响应格式和社区讨论,系统性地逆向推导出其 System Prompt 和 User Prompt 的完整结构,欢迎各路大佬戳戳评论,一起来进行这个有趣的实验。
 
 [![GitHub - nof0](https://img.shields.io/badge/GitHub-nof0-0A1643?style=for-the-badge&logo=github&logoColor=white)](https://github.com/wquguru/nof0)
 [![Follow @wquguru](https://img.shields.io/badge/Follow-@wquguru-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://twitter.com/intent/follow?screen_name=wquguru)
@@ -183,12 +183,14 @@ You will receive your Sharpe Ratio at each invocation:
 Sharpe Ratio = (Average Return - Risk-Free Rate) / Standard Deviation of Returns
 
 Interpretation:
+
 - < 0: Losing money on average
 - 0-1: Positive returns but high volatility
 - 1-2: Good risk-adjusted performance
 - > 2: Excellent risk-adjusted performance
 
 Use Sharpe Ratio to calibrate your behavior:
+
 - Low Sharpe → Reduce position sizes, tighten stops, be more selective
 - High Sharpe → Current strategy is working, maintain discipline
 
@@ -199,28 +201,34 @@ Use Sharpe Ratio to calibrate your behavior:
 ## Technical Indicators Provided
 
 **EMA (Exponential Moving Average)**: Trend direction
+
 - Price > EMA = Uptrend
 - Price < EMA = Downtrend
 
 **MACD (Moving Average Convergence Divergence)**: Momentum
+
 - Positive MACD = Bullish momentum
 - Negative MACD = Bearish momentum
 
 **RSI (Relative Strength Index)**: Overbought/Oversold conditions
+
 - RSI > 70 = Overbought (potential reversal down)
 - RSI < 30 = Oversold (potential reversal up)
 - RSI 40-60 = Neutral zone
 
 **ATR (Average True Range)**: Volatility measurement
+
 - Higher ATR = More volatile (wider stops needed)
 - Lower ATR = Less volatile (tighter stops possible)
 
 **Open Interest**: Total outstanding contracts
+
 - Rising OI + Rising Price = Strong uptrend
 - Rising OI + Falling Price = Strong downtrend
 - Falling OI = Trend weakening
 
 **Funding Rate**: Market sentiment indicator
+
 - Positive funding = Bullish sentiment (longs paying shorts)
 - Negative funding = Bearish sentiment (shorts paying longs)
 - Extreme funding rates (>0.01%) = Potential reversal signal
@@ -286,11 +294,13 @@ Do NOT confuse the order. This is a common error that leads to incorrect decisio
 # CONTEXT WINDOW MANAGEMENT
 
 You have limited context. The prompt contains:
+
 - ~10 recent data points per indicator (3-minute intervals)
 - ~10 recent data points for 4-hour timeframe
 - Current account state and open positions
 
 Optimize your analysis:
+
 - Focus on most recent 3-5 data points for short-term signals
 - Use 4-hour data for trend context and support/resistance levels
 - Don't try to memorize all numbers, identify patterns instead
@@ -334,12 +344,14 @@ Below, we are providing you with a variety of state data, price data, and predic
 ### ALL BTC DATA
 
 **Current Snapshot:**
+
 - current_price = {btc_price}
 - current_ema20 = {btc_ema20}
 - current_macd = {btc_macd}
 - current_rsi (7 period) = {btc_rsi7}
 
 **Perpetual Futures Metrics:**
+
 - Open Interest: Latest: {btc_oi_latest} | Average: {btc_oi_avg}
 - Funding Rate: {btc_funding_rate}
 
@@ -372,12 +384,14 @@ RSI indicators (14-Period, 4h): [{btc_rsi14_4h}]
 ### ALL ETH DATA
 
 **Current Snapshot:**
+
 - current_price = {eth_price}
 - current_ema20 = {eth_ema20}
 - current_macd = {eth_macd}
 - current_rsi (7 period) = {eth_rsi7}
 
 **Perpetual Futures Metrics:**
+
 - Open Interest: Latest: {eth_oi_latest} | Average: {eth_oi_avg}
 - Funding Rate: {eth_funding_rate}
 
@@ -434,10 +448,12 @@ RSI indicators (14-Period, 4h): [{eth_rsi14_4h}]
 ## HERE IS YOUR ACCOUNT INFORMATION & PERFORMANCE
 
 **Performance Metrics:**
+
 - Current Total Return (percent): {return_pct}%
 - Sharpe Ratio: {sharpe_ratio}
 
 **Account Status:**
+
 - Available Cash: ${cash_available}
 - **Current Account Value:** ${account_value}
 
@@ -467,6 +483,7 @@ RSI indicators (14-Period, 4h): [{eth_rsi14_4h}]
 ```
 
 If no open positions:
+
 ```python
 []
 ```
@@ -595,6 +612,7 @@ Trading Fees: ~0.02-0.05% per trade
 
 ```markdown
 # 额外指令
+
 Don't be overly cautious; calculated risks are necessary for returns.
 Inaction has opportunity cost. If you see a clear setup, take it.
 ```
@@ -611,6 +629,7 @@ Inaction has opportunity cost. If you see a clear setup, take it.
 
 ```markdown
 # 额外指令
+
 Balance safety with opportunity; holding cash has opportunity cost.
 You are rewarded for risk-adjusted returns, not just capital preservation.
 ```
@@ -627,6 +646,7 @@ You are rewarded for risk-adjusted returns, not just capital preservation.
 
 ```markdown
 # 额外指令
+
 Technical indicators are tools, not rules; use judgment.
 Consider market context beyond pure technical signals.
 ```
@@ -643,6 +663,7 @@ Consider market context beyond pure technical signals.
 
 ```markdown
 # 额外指令
+
 This is a research experiment in a legal jurisdiction.
 Focus on technical analysis and risk management principles.
 ```
@@ -665,14 +686,17 @@ Focus on technical analysis and risk management principles.
 
 ```markdown
 # 增加回撤控制
+
 - **Maximum Drawdown Limit**: If account value drops >15% from peak, STOP trading
 - **Daily Loss Limit**: If daily loss exceeds 5%, switch to "hold" only mode
 
 # 增加相关性分析
+
 - **Correlation Check**: Before entering new position, check correlation with existing positions
 - **Diversification Rule**: No more than 2 positions in highly correlated assets (>0.7)
 
 # 增加市场状态识别
+
 - **Market Regime Detection**:
   - Trending (use trend-following strategies)
   - Ranging (use mean-reversion strategies)
