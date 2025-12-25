@@ -59,21 +59,24 @@ base_app: FastAPI = FastAPI(
     debug=(settings.ENVIRONMENT == "dev"),
 )
 
-# ———————————— 加载 Agent & Workflow ———————————— #
-example_agent_instance: Agent = example_agent("kimi")
-trader_agent_instance: Agent = trader_agent()
-nof1_workflow_instance: Workflow = create_nof1_workflow()
+# ———————————— 加载 AgentOS(可选) ———————————— #
+if settings.AGENT_OS_ENABLED:
+    example_agent_instance: Agent = example_agent("kimi")
+    trader_agent_instance: Agent = trader_agent()
+    nof1_workflow_instance: Workflow = create_nof1_workflow()
 
-# ———————————— 包装 AgentOS ———————————— #
-agent_os = AgentOS(
-    name="Quant Agent OS",
-    agents=[example_agent_instance, trader_agent_instance],
-    workflows=[nof1_workflow_instance],
-    base_app=base_app,
-)
+    agent_os = AgentOS(
+        name="Quant Agent OS",
+        agents=[example_agent_instance, trader_agent_instance],
+        workflows=[nof1_workflow_instance],
+        base_app=base_app,
+    )
 
-# 获取最终的 App 实例
-app: FastAPI = agent_os.get_app()
+    app: FastAPI = agent_os.get_app()
+    logger.info("AgentOS 已启用,包装 FastAPI 应用")
+else:
+    app = base_app
+    logger.info("AgentOS 已禁用,直接使用 FastAPI 应用")
 
 # ———————————— 注册路由、中间件与异常处理 ———————————— #
 # 1. 异常处理
