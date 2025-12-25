@@ -4,7 +4,13 @@ from textwrap import dedent
 
 from app.data_feed.technical_indicator import TechnicalIndicatorFeed, TechnicalSnapshot
 from app.data_source.longport_source import LongportSource
-from app.prompt_build.formatters import fmt_list, fmt_number, fmt_pct, fmt_series_number
+from app.prompt_build.formatters import (
+    fmt_list,
+    fmt_number,
+    fmt_pct,
+    round_numeric,
+    round_numeric_series,
+)
 
 
 def _last(values: list[float] | None) -> float | None:
@@ -88,31 +94,31 @@ def _build_single_period_json_prompt(symbol: str, source: LongportSource) -> dic
         "symbol": snapshot.symbol,
         "period": snapshot.period,
         "price": {
-            "latest": fmt_number(snapshot.latest_price),
-            "change_1d_pct": snapshot.change_pct_1,
-            "change_5d_pct": snapshot.change_pct_5,
+            "latest": round_numeric(snapshot.latest_price),
+            "change_1d_pct": fmt_pct(snapshot.change_pct_1),
+            "change_5d_pct": fmt_pct(snapshot.change_pct_5),
         },
         "trend": {
-            "ema_5_series": fmt_series_number(snapshot.ema5_series),
-            "ema_10_series": fmt_series_number(snapshot.ema10_series),
-            "ema_20_series": fmt_series_number(snapshot.ema20_series),
-            "ema_60_series": fmt_series_number(snapshot.ema60_series),
+            "ema_5_series": round_numeric_series(snapshot.ema5_series),
+            "ema_10_series": round_numeric_series(snapshot.ema10_series),
+            "ema_20_series": round_numeric_series(snapshot.ema20_series),
+            "ema_60_series": round_numeric_series(snapshot.ema60_series),
         },
         "momentum": {
-            "adx_14_series": fmt_series_number(snapshot.adx14_series),
-            "rsi_7_latest": snapshot.rsi7_latest,
-            "rsi_14_latest": snapshot.rsi14_latest,
-            "macd_series": fmt_series_number(snapshot.macd_series),
-            "macd_signal_series": fmt_series_number(snapshot.macd_signal_series),
-            "macd_hist_series": fmt_series_number(snapshot.macd_hist_series),
+            "adx_14_series": round_numeric_series(snapshot.adx14_series),
+            "rsi_7_latest": round_numeric(snapshot.rsi7_latest),
+            "rsi_14_latest": round_numeric(snapshot.rsi14_latest),
+            "macd_series": round_numeric_series(snapshot.macd_series),
+            "macd_signal_series": round_numeric_series(snapshot.macd_signal_series),
+            "macd_hist_series": round_numeric_series(snapshot.macd_hist_series),
         },
         "volatility": {
-            "atr_3_latest": snapshot.atr3_latest,
-            "atr_14_latest": snapshot.atr14_latest,
+            "atr_3_latest": round_numeric(snapshot.atr3_latest),
+            "atr_14_latest": round_numeric(snapshot.atr14_latest),
             "bbands": {
-                "upper_latest": snapshot.bbands_upper_latest,
-                "middle_latest": snapshot.bbands_middle_latest,
-                "lower_latest": snapshot.bbands_lower_latest,
+                "upper_latest": round_numeric(snapshot.bbands_upper_latest),
+                "middle_latest": round_numeric(snapshot.bbands_middle_latest),
+                "lower_latest": round_numeric(snapshot.bbands_lower_latest),
             },
         },
         "volume": {
@@ -121,7 +127,7 @@ def _build_single_period_json_prompt(symbol: str, source: LongportSource) -> dic
             "sma_20": snapshot.volume_sma_20,
         },
         "liquidity": {
-            "ad_series": snapshot.ad_series,
+            "ad_series": round_numeric_series(snapshot.ad_series),
         },
     }
 
