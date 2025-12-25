@@ -53,10 +53,12 @@ async def _get_snapshots(symbols: Sequence[str], use_cache: bool) -> list[Techni
 @router.get("/technical", response_model=ResponseEnvelope[dict])
 async def get_technical_prompt(
     current_user: CurrentUserDep,
-    symbols: Annotated[str, Query(description="逗号分隔的股票代码, 例如: 00700.HK,09988.HK")],
+    symbols: Annotated[
+        str, Query(description="逗号分隔的股票代码, 例如: 159300.SZ,159500.SZ,588000.SH,159937.SZ")
+    ],
     template: Annotated[
         TechnicalPromptTemplate, Query(description="技术面模版")
-    ] = TechnicalPromptTemplate.SIMPLE,
+    ] = TechnicalPromptTemplate.SINGLE_PERIOD_JSON,
     use_cache: Annotated[bool, Query(description="是否使用 60 秒缓存")] = True,
 ):
     symbol_list = [s.strip() for s in symbols.split(",") if s.strip()]
