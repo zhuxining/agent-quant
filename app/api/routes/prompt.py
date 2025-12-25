@@ -56,15 +56,14 @@ async def get_technical_prompt(
     symbols: Annotated[str, Query(description="逗号分隔的股票代码, 例如: 00700.HK,09988.HK")],
     template: Annotated[
         TechnicalPromptTemplate, Query(description="技术面模版")
-    ] = TechnicalPromptTemplate.DAILY_FULL_DEBUG,
+    ] = TechnicalPromptTemplate.SIMPLE,
     use_cache: Annotated[bool, Query(description="是否使用 60 秒缓存")] = True,
 ):
     symbol_list = [s.strip() for s in symbols.split(",") if s.strip()]
     if not symbol_list:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="symbols 不能为空")
 
-    snapshots = await _get_snapshots(symbol_list, use_cache)
-    prompt = build_technical_prompt(snapshots, template=template)
+    prompt = build_technical_prompt(symbol_list, template=template)
 
     return success_response(
         data={
