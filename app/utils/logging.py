@@ -87,14 +87,6 @@ def setup_logging(settings, *, force: bool = False):
         diagnose=settings.ENVIRONMENT == "dev",
         enqueue=True,
     )
-    logger.add(
-        "logs/app_{time:YYYY-MM-DD}.log",
-        level=log_level,
-        format=log_format,
-        rotation="1 day",
-        retention="14 days",
-        enqueue=True,
-    )
 
     logging.basicConfig(handlers=[InterceptHandler()], level=logging.NOTSET, force=True)
 
