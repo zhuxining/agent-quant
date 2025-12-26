@@ -90,7 +90,7 @@ def setup_logging(settings, *, force: bool = False):
 
     logging.basicConfig(handlers=[InterceptHandler()], level=logging.NOTSET, force=True)
 
-    for noisy_logger in ("uvicorn", "uvicorn.access", "sqlalchemy"):
+    for noisy_logger in ("uvicorn", "uvicorn.access", "sqlalchemy", "_granian", "granian.access"):
         existing_logger = logging.getLogger(noisy_logger)
         existing_logger.handlers = [InterceptHandler()]
         existing_logger.propagate = False

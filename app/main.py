@@ -4,7 +4,6 @@ from agno.agent import Agent
 from agno.os import AgentOS
 from agno.workflow import Workflow
 from fastapi import FastAPI
-from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.routing import APIRoute
 from loguru import logger
 
@@ -80,7 +79,6 @@ else:
 register_exception_handlers(app)
 
 # 2. 中间件 (注意顺序: 从内到外添加, 越晚添加的越先执行)
-app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)  # ty:ignore[invalid-argument-type]
 app.add_middleware(RequestLoggingMiddleware)  # ty:ignore[invalid-argument-type]
 
 # 3. 路由

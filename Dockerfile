@@ -27,4 +27,4 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
   CMD python -c "import socket; s=socket.socket(); s.settimeout(2); s.connect(('0.0.0.0', 8000)); s.close()"
 
-CMD ["uv", "run", "serve.py"]
+CMD ["uv", "run", "--no-dev", "serve.py"]
