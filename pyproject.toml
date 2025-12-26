@@ -42,6 +42,10 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
 
+[[tool.uv.index]]
+url = "http://mirrors.aliyun.com/pypi/simple/"
+default = true
+
 [tool.uv.workspace]
 members = ["git"]
 
@@ -79,7 +83,6 @@ unfixable = []
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-sort-within-sections = true
-
 
 # Pytest
 [tool.pytest.ini_options]
