@@ -76,9 +76,8 @@ Example reference: `app/models/post.py`
 - **Language**: All responses and documentation in Chinese
 - **Linting**: Ruff with line length 100, auto-fix enabled
 - **Imports**: Organized with isort; **no longer** require `from __future__ import annotations` (leverages Python 3.14 PEP 649 deferred evaluation)
-- **Design**: Keep code simple and practical, avoid over-engineering
-- **Complexity**: Minimize cyclomatic complexity, maximize code reuse
-- **Modifications**: Minimize changes to unrelated modules
+- **Simplicity**: Avoid over-engineering. Minimize cyclomatic complexity.
+- **Modifications**: Minimize changes to unrelated modules. Maximize code reuse.
 
 ### Testing
 
