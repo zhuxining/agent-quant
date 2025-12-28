@@ -26,14 +26,14 @@ class IndicatorCalculator:
     DEFAULT_CHANGE_PERIODS = (1, 5, 10, 20)
     DEFAULT_EMA_PERIODS = (5, 10, 20, 60)
     DEFAULT_MACD_PERIODS = (12, 26, 9)
-    DEFAULT_ADX_PERIODS = (14,)
+    DEFAULT_ADX_PERIODS = (14, 7)
     DEFAULT_RSI_PERIODS = (7, 14)
-    DEFAULT_CCI_PERIODS = (14,)
+    DEFAULT_CCI_PERIODS = (14, 7)
     DEFAULT_STOCH_PERIODS = (9, 3, 3)
     DEFAULT_ATR_PERIODS = (3, 14)
     DEFAULT_BBANDS_PARAMS = (5, 2.0, 2.0, talib.MA_Type.SMA)
     DEFAULT_VOLUME_SMA_PERIODS = (5, 10, 20)
-
+    DEFAULT_VWMA_PERIODS = (5, 10)
     # ==================== 基础指标 ====================
 
     @staticmethod
@@ -323,6 +323,35 @@ class IndicatorCalculator:
         # 为每个周期计算 SMA
         for period in periods:
             result[f"volume_sma_{period}"] = talib.SMA(volume, timeperiod=period)
+        return result
+
+    @staticmethod
+    def compute_vwma(
+        frame: pd.DataFrame,
+        *,
+        vwma_periods: Sequence[int] | None = None,
+        close_column: str = DEFAULT_CLOSE_COLUMN,
+        volume_column: str = "volume",
+    ) -> pd.DataFrame:
+        """计算成交量加权移动平均线 (VWMA)。
+
+        VWMA 通过成交量加权价格,成交量大的交易日对均线影响更大。
+        计算公式: VWMA = SUM(价格 * 成交量) / SUM(成交量)
+        """
+        periods = tuple(vwma_periods or IndicatorCalculator.DEFAULT_VWMA_PERIODS)
+        IndicatorCalculator._ensure_columns(frame, [close_column, volume_column])
+        result = frame.copy()
+        close = IndicatorCalculator._column_as_ndarray(result, close_column)
+        volume = IndicatorCalculator._column_as_ndarray(result, volume_column)
+
+        for period in periods:
+            # 计算价格*成交量的移动总和
+            pv_sum = talib.SUM(close * volume, timeperiod=period)
+            # 计算成交量的移动总和
+            v_sum = talib.SUM(volume, timeperiod=period)
+            # VWMA = (价格*成交量)之和 / 成交量之和
+            result[f"vwma_{period}"] = pv_sum / v_sum
+
         return result
 
     # ==================== 辅助函数 ====================

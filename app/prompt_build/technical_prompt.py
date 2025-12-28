@@ -38,6 +38,7 @@ class TechnicalPromptTemplate(StrEnum):
     SINGLE_PERIOD_TXT = "single_period_txt"
     SINGLE_PERIOD_JSON = "single_period_json"
     MULTI_PERIOD_TXT = "multi_period_txt"
+    SINGLE_PERIOD_ONLY_LATEST_TXT = "single_period_only_latest_txt"
 
 
 def _build_single_period_txt_prompt(symbol: str, source: LongportSource) -> str:
@@ -47,7 +48,7 @@ def _build_single_period_txt_prompt(symbol: str, source: LongportSource) -> str:
     snapshot = snapshots.get("1d")
 
     if snapshot is None:
-        return f"### {symbol}\n\n(暂无数据)"
+        return f"## {symbol}\n\n(暂无数据)"
 
     return dedent(
         f"""
@@ -77,6 +78,43 @@ def _build_single_period_txt_prompt(symbol: str, source: LongportSource) -> str:
         - 最新成交量: {fmt_number(snapshot.volume_latest)}
         - 5日均量: {fmt_number(snapshot.volume_sma_5)}
         - 20日均量: {fmt_number(snapshot.volume_sma_20)}
+        """
+    ).strip()
+
+
+def _build_single_period_only_latest_txt_prompt(symbol: str, source: LongportSource) -> str:
+    """生成 SINGLE_PERIOD_TXT 模板的 prompt,仅包含最新数据."""
+    periods = ["1d"]
+    snapshots = _fetch_snapshots_for_symbol(symbol, periods, source)
+    snapshot = snapshots.get("1d")
+
+    if snapshot is None:
+        return f"### {symbol}\n\n(暂无数据)"
+
+    return dedent(
+        f"""
+        ### {symbol} ({snapshot.period})
+
+        **价格与涨幅**
+        - 最新价格: {fmt_number(snapshot.latest_price)}
+        - 1日涨幅: {fmt_pct(snapshot.change_pct_1)} | 5日涨幅: {fmt_pct(snapshot.change_pct_5)}| 10日涨幅: {fmt_pct(snapshot.change_pct_10)} 
+
+        **趋势(EMA | VWMA)**
+        - EMA5: {fmt_number(_last(snapshot.ema5_series))} | EMA10: {fmt_number(_last(snapshot.ema10_series))} | EMA20: {fmt_number(_last(snapshot.ema20_series))} | EMA60: {fmt_number(_last(snapshot.ema60_series))}
+        - VWMA5: {fmt_number(_last(snapshot.vwma5_series))} | VWMA10: {fmt_number(_last(snapshot.vwma10_series))}
+
+        **动量指标**
+        - ADX14: {fmt_number(_last(snapshot.adx14_series))}
+        - RSI14: {fmt_number(snapshot.rsi14_latest)}
+        - CCI14: {fmt_number(_last(snapshot.cci14_series))} 
+        - MACD: {fmt_number(_last(snapshot.macd_series))} | MACD_Signal: {fmt_number(_last(snapshot.macd_signal_series))} | MACD_Histogram: {fmt_number(_last(snapshot.macd_hist_series))}
+
+        **波动与支撑**
+        -  ATR14: {fmt_number(snapshot.atr14_latest)} 
+        - BBANDS(5) 上/中/下: {fmt_number(snapshot.bbands_upper_latest)} / {fmt_number(snapshot.bbands_middle_latest)} / {fmt_number(snapshot.bbands_lower_latest)}
+
+        **成交量**
+        - 最新成交量: {fmt_number(snapshot.volume_latest)} | 5日均量: {fmt_number(snapshot.volume_sma_5)} | 10日均量: {fmt_number(snapshot.volume_sma_10)} |20日均量: {fmt_number(snapshot.volume_sma_20)}
         """
     ).strip()
 
@@ -218,6 +256,7 @@ def build_technical_prompt(
         return "## 市场数据分析\n\n(暂无标的)"
 
     text_builders = {
+        TechnicalPromptTemplate.SINGLE_PERIOD_ONLY_LATEST_TXT: _build_single_period_only_latest_txt_prompt,
         TechnicalPromptTemplate.SINGLE_PERIOD_TXT: _build_single_period_txt_prompt,
         TechnicalPromptTemplate.MULTI_PERIOD_TXT: _build_multi_period_txt_prompt,
     }

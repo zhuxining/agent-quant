@@ -58,7 +58,7 @@ async def get_technical_prompt(
     ],
     template: Annotated[
         TechnicalPromptTemplate, Query(description="技术面模版")
-    ] = TechnicalPromptTemplate.SINGLE_PERIOD_JSON,
+    ] = TechnicalPromptTemplate.SINGLE_PERIOD_ONLY_LATEST_TXT,
     use_cache: Annotated[bool, Query(description="是否使用 60 秒缓存")] = True,
 ):
     symbol_list = [s.strip() for s in symbols.split(",") if s.strip()]

@@ -55,14 +55,19 @@ class TechnicalSnapshot:
     latest_price: float | None  # 最新收盘价
     change_pct_1: float | None
     change_pct_5: float | None
+    change_pct_10: float | None
+    change_pct_20: float | None
 
     # ============ 趋势指标: EMA ============
     ema5_series: list[float]  # EMA(5) 序列
     ema10_series: list[float]  # EMA(10) 序列
     ema20_series: list[float]  # EMA(20) 序列
     ema60_series: list[float]  # EMA(60) 序列
+    vwma5_series: list[float]  # VWMA(5) 序列
+    vwma10_series: list[float]  # VWMA(10) 序列
 
     # ============ 趋势强度指标: ADX ============
+    adx7_series: list[float]  # ADX(7) 序列
     adx14_series: list[float]  # ADX(14) 序列
 
     # ============ 动量指标: MACD ============
@@ -73,6 +78,8 @@ class TechnicalSnapshot:
     # ============ 动量指标: RSI ============
     rsi7_latest: float | None  # RSI(7) 最新值
     rsi14_latest: float | None  # RSI(14) 最新值
+    cci7_series: list[float]  # CCI(7) 序列
+    cci14_series: list[float]  # CCI(14) 序列
 
     # ============ 波动指标: ATR ============
     atr3_latest: float | None  # ATR(3) 最新值
@@ -89,6 +96,7 @@ class TechnicalSnapshot:
     # ============ 成交量指标 ============
     volume_latest: float | None  # 最新成交量
     volume_sma_5: float | None  # 5 周期成交量均线
+    volume_sma_10: float | None  # 10 周期成交量均线
     volume_sma_20: float | None  # 20 周期成交量均线
 
 
@@ -209,7 +217,7 @@ class TechnicalIndicatorFeed:
         # 4. 动量指标
         enriched = self.indicator_calculator.compute_cci(enriched)
         enriched = self.indicator_calculator.compute_rsi(enriched)
-        enriched = self.indicator_calculator.compute_stoch(enriched)
+        # enriched = self.indicator_calculator.compute_stoch(enriched) --- IGNORE ---
 
         # 5. 波动指标
         enriched = self.indicator_calculator.compute_atr(enriched)
@@ -218,9 +226,8 @@ class TechnicalIndicatorFeed:
         # 6. 成交量指标
         enriched = self.indicator_calculator.compute_obv(enriched)
         enriched = self.indicator_calculator.compute_ad(enriched)
-
-        # 7. 聚合指标
         enriched = self.indicator_calculator.compute_volume_sma(enriched)
+        enriched = self.indicator_calculator.compute_vwma(enriched)
 
         return enriched
 
@@ -265,12 +272,17 @@ class TechnicalIndicatorFeed:
             latest_price=safe_float(latest.get("close")),
             change_pct_1=safe_float(latest.get("change_pct_1")),
             change_pct_5=safe_float(latest.get("change_pct_5")),
+            change_pct_10=safe_float(latest.get("change_pct_10")),
+            change_pct_20=safe_float(latest.get("change_pct_20")),
             # 趋势指标: EMA
             ema5_series=self._series_tail(slice_.frame, "ema_5"),
             ema10_series=self._series_tail(slice_.frame, "ema_10"),
             ema20_series=self._series_tail(slice_.frame, "ema_20"),
             ema60_series=self._series_tail(slice_.frame, "ema_60"),
+            vwma5_series=self._series_tail(slice_.frame, "vwma_5"),
+            vwma10_series=self._series_tail(slice_.frame, "vwma_10"),
             # 趋势强度指标: ADX
+            adx7_series=self._series_tail(slice_.frame, "adx_7"),
             adx14_series=self._series_tail(slice_.frame, "adx_14"),
             # 动量指标: MACD
             macd_series=self._series_tail(slice_.frame, "macd"),
@@ -279,6 +291,8 @@ class TechnicalIndicatorFeed:
             # 动量指标: RSI
             rsi7_latest=safe_float(latest.get("rsi_7")),
             rsi14_latest=safe_float(latest.get("rsi_14")),
+            cci7_series=self._series_tail(slice_.frame, "cci_7"),
+            cci14_series=self._series_tail(slice_.frame, "cci_14"),
             # 波动指标: ATR
             atr3_latest=safe_float(latest.get("atr_3")),
             atr14_latest=safe_float(latest.get("atr_14")),
@@ -291,6 +305,7 @@ class TechnicalIndicatorFeed:
             # 成交量指标
             volume_latest=safe_float(latest.get("volume")),
             volume_sma_5=safe_float(latest.get("volume_sma_5")),
+            volume_sma_10=safe_float(latest.get("volume_sma_10")),
             volume_sma_20=safe_float(latest.get("volume_sma_20")),
         )
 
