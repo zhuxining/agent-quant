@@ -12,7 +12,7 @@ def fmt_number(value: float | Decimal | None) -> str:
         return "N/A"
     try:
         return f"{float(value):.{SCALE}f}"
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         return str(value)
 
 
@@ -41,7 +41,7 @@ def round_numeric(value: float | Decimal | None) -> float | Decimal | None:
         return None
     try:
         return round(float(value), SCALE)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         return value
 
 

@@ -7,6 +7,7 @@ from uuid import UUID
 
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
+from uuid_extensions import uuid7str
 
 from app.backtest.equity import EquityCurve, EquityPoint
 from app.data_feed.technical_indicator import TechnicalIndicatorFeed
@@ -103,10 +104,9 @@ class BacktestEngine:
     async def _initialize(self) -> None:
         """初始化回测记录和专用账户。"""
         import json
-        from uuid import uuid7
 
         # 创建回测运行记录
-        account_number = f"BT-{uuid7().hex[:12].upper()}"
+        account_number = f"BT-{uuid7str()[:12].upper()}"
 
         self._backtest_run = BacktestRun(
             name=self.config.name,

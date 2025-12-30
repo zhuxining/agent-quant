@@ -234,7 +234,7 @@ class IndicatorCalculator:
     def compute_bbands(
         frame: pd.DataFrame,
         *,
-        bbands_params: Sequence[int | float | talib.MA_Type] | None = None,
+        bbands_params: Sequence[int | float] | None = None,
         close_column: str = DEFAULT_CLOSE_COLUMN,
     ) -> pd.DataFrame:
         """使用 TA-Lib 计算布林带(Bollinger Bands).
