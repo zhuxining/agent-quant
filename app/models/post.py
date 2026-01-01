@@ -1,7 +1,8 @@
 from typing import Any, ClassVar
-from uuid import UUID, uuid7
+from uuid import UUID
 
 from sqlmodel import Field, SQLModel
+from uuid_extensions import uuid7
 
 from .base_model import BaseModel
 

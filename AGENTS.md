@@ -147,3 +147,7 @@ Centralized Loguru configuration in `app/utils/logging.py` with request logging 
 ### Exception Handling
 
 Custom exceptions inherit from base classes in `app/utils/exceptions.py` and are automatically converted to standardized responses.
+
+## Tools or Skills
+
+Always use context7 when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.

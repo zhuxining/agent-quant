@@ -1,7 +1,8 @@
 from datetime import datetime
-from uuid import UUID, uuid7
+from uuid import UUID
 
 from sqlmodel import DateTime, Field, SQLModel, func
+from uuid_extensions import uuid7
 
 from app.core.config import settings
 

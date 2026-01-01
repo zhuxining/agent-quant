@@ -2,12 +2,12 @@ from contextvars import ContextVar
 import logging
 import sys
 from time import perf_counter
-import uuid
 
 from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.types import ASGIApp
+from uuid_extensions import uuid7str
 
 request_id_ctx_var: ContextVar[str] = ContextVar("request_id", default="-")
 _LOGGING_INITIALIZED = False
@@ -29,7 +29,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
 
     async def dispatch(self, request: Request, call_next):
-        request_id = uuid.uuid7().hex
+        request_id = uuid7str()
         token = request_id_ctx_var.set(request_id)
         request.state.request_id = request_id
 
