@@ -16,20 +16,21 @@ dependencies = [
     "asyncpg>=0.31.0",
     "aiosqlite>=0.20.0",
     "longport>=3.0.18",
-    "akshare>=1.18.3",
+    "akshare>=1.18.6",
     "ta-lib>=0.6.8",
     "pandas>=2.3.3",
     "quantstats>=0.0.77",
     "agno[openai]>=2.3.20",
-    "openbb[all]>=4.5.0",
+    "openbb[all]>=4.6.0",
     "openbb-mcp-server>=1.2.2",
     "openbb-platform-api>=1.2.3",
+
 ]
 
 [dependency-groups]
 dev = [
     "ty>=0.0.8",
-    "ruff>=0.13.0",
+    "ruff>=0.1.0",
     "pytest-asyncio>=1.3.0",
     "pytest>=9.0.1",
     "alembic>=1.17.1",
