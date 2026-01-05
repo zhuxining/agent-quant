@@ -6,9 +6,9 @@ This file provides guidance to Any CodeAgents when working with code in this rep
 
 Agent Quant is a trading agent system that integrates LLMs to generate trading signals based on market data analysis. The system fetches stock market data, builds prompts for AI agents, receives trading signals, and executes virtual trades with performance analysis.
 
-**Key Languages**: Python 3.14
+**Key Languages**: Python >=3.13
 **Package Manager**: uv
-**Framework**: FastAPI with AgentOS integration
+**Framework**: FastAPI with Agno integration
 
 ## Essential Commands
 
@@ -28,6 +28,12 @@ uv run pytest
 # Run specific test file
 uv run pytest tests/api/routes/test_auth.py
 
+# Run specific test function
+uv run pytest tests/api/routes/test_auth.py::test_login_success
+
+# Run tests excluding integration tests
+uv run pytest -m "not integration"
+
 # Apply database migrations (if alembic migrations are configured)
 uv run alembic upgrade head
 ```
@@ -38,7 +44,7 @@ uv run alembic upgrade head
 
 The application follows a modular architecture with clear separation of concerns:
 
-- **`app/main.py`**: FastAPI application entry point, initializes AgentOS, mounts routes/middleware/exception handlers
+- **`app/main.py`**: FastAPI application entry point, initializes Agno, mounts routes/middleware/exception handlers
 - **`app/core/`**: Configuration (`config.py`), database sessions (`db.py`), dependencies (`deps.py`), initialization logic (`init_data.py`)
 - **`app/api/`**: HTTP API endpoints organized by feature in `routes/` subdirectories
 - **`app/agent/`**: LLM agent definitions and factories
@@ -67,6 +73,7 @@ All database models follow a three-layer pattern:
 - Entity (`table=True`): SQLModel database table definition
 - `Create`/`Update`/`Read`: Pydantic validation models
 
+Primary keys use UUID v7. All models must inherit from `app/models/base_model.py`.
 Example reference: `app/models/post.py`
 
 ## Development Guidelines
@@ -74,8 +81,11 @@ Example reference: `app/models/post.py`
 ### Code Standards
 
 - **Language**: All responses and documentation in Chinese
-- **Linting**: Ruff with line length 100, auto-fix enabled
-- **Imports**: Organized with isort; **no longer** require `from __future__ import annotations` (leverages Python 3.14 PEP 649 deferred evaluation)
+- **Linting**: Ruff with line length 100, auto-fix enabled. Key rules: pycodestyle, Pyflakes, pyupgrade, flake8-bugbear, isort, fastapi-specific
+- **Type Hints**: Use modern `T | None` syntax (no `Optional[T]` required). All functions should have type hints.
+- **Imports**: Organized with isort; combine-as-imports enabled; **no longer** require `from __future__ import annotations` (leverages Python 3.13+ PEP 649 deferred evaluation)
+- **Naming**: snake_case for functions/variables, PascalCase for classes, UPPER_CASE for constants
+- **Error Handling**: Use custom exceptions from `app/utils/exceptions.py`, never expose sensitive data in error messages
 - **Simplicity**: Avoid over-engineering. Minimize cyclomatic complexity.
 - **Modifications**: Minimize changes to unrelated modules. Maximize code reuse.
 
@@ -96,7 +106,7 @@ Example reference: `app/models/post.py`
 
 ### Agent Development
 
-- Agents built with AgentOS framework
+- Agents built with Agno framework
 - Prompts assembled in `app/prompt_build/` with modular fragments
 - Trader agent example: `app/agent/trader_agent.py`
 - Workflow orchestration in `app/workflow/`
