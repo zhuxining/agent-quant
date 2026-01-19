@@ -1,16 +1,87 @@
-# AGENTS.md
+# PROJECT KNOWLEDGE BASE
 
-This file provides guidance to Any CodeAgents when working with code in this repository.
+**Generated:** 2026-01-19
+**Commit:** HEAD
+**Branch:** main
 
-## Project Overview
+## OVERVIEW
 
-Agent Quant is a trading agent system that integrates LLMs to generate trading signals based on market data analysis. The system fetches stock market data, builds prompts for AI agents, receives trading signals, and executes virtual trades with performance analysis.
+Agent Quant is a trading agent system integrating LLMs to generate trading signals from market data analysis. Fetches stock market data, builds prompts for AI agents, executes virtual trades, and analyzes performance.
 
-**Key Languages**: Python >=3.13
+**Key Languages**: Python >=3.14
 **Package Manager**: uv
 **Framework**: FastAPI with Agno integration
 
-## Essential Commands
+## STRUCTURE
+
+```
+./
+├── app/              # FastAPI application
+│   ├── agent/        # LLM agent definitions
+│   ├── api/          # HTTP API endpoints
+│   ├── backtest/     # Backtesting engine
+│   ├── core/         # Configuration, DB, deps
+│   ├── data_feed/    # Market data processing
+│   ├── data_source/  # Market data adapters (Longport)
+│   ├── models/       # SQLModel entities
+│   ├── prompt_build/ # Prompt assembly for LLMs
+│   ├── scheduler/    # APScheduler tasks
+│   ├── utils/        # Cross-cutting utilities
+│   ├── virtual_trade/# Virtual trading logic
+│   └── workflow/     # Workflow orchestration (NOF1)
+├── tests/            # pytest tests
+└── serve.py          # Development server entry
+```
+
+## WHERE TO LOOK
+
+| Task | Location | Notes |
+|------|----------|-------|
+| API routes | `app/api/routes/` | Feature-based organization |
+| DB models | `app/models/` | Three-layer pattern: Base, Entity, Create/Update/Read |
+| Agents | `app/agent/` | Agno-based definitions |
+| Workflow | `app/workflow/` | NOF1 trading workflow with steps |
+| Virtual trade | `app/virtual_trade/` | Account, order, position logic |
+| Backtest | `app/backtest/` | QuantStats integration |
+| Configuration | `app/core/config.py` | Settings from .env |
+| Dependencies | `app/core/deps.py` | DB session, auth deps |
+
+## CODE MAP
+
+| Symbol | Type | Location | Role |
+|--------|------|----------|------|
+| `create_nof1_workflow` | function | `app/workflow/nof1_workflow.py` | Main workflow factory |
+| `trader_agent` | function | `app/agent/trader_agent.py` | LLM trading agent |
+| `run_backtest` | function | `app/backtest/run_backtest.py` | Backtest entry point |
+| `SessionDep` | type alias | `app/core/deps.py` | DB session injection |
+| `CurrentUserDep` | type alias | `app/core/deps.py` | Auth user injection |
+| `BaseModel` | class | `app/models/base_model.py` | Base for all models (UUID v7 PK) |
+
+## CONVENTIONS
+
+**Deviation from standard:**
+
+- **Type Hints**: Use modern `T | None` syntax (no `Optional[T]`)
+- **Imports**: `from __future__ import annotations` NOT required (Python 3.14+ PEP 649)
+- **Language**: All documentation in Chinese
+- **Line Length**: 100 characters (Ruff config)
+- **Model Pattern**: Three-layer inheritance required (Base, Entity, CRUD models)
+- **Primary Keys**: UUID v7 mandatory (via `app/models/base_model.py`)
+- **API Response**: Must use envelope pattern from `app/utils/responses.py`
+- **Exception Handling**: Use custom exceptions from `app/utils/exceptions.py`
+
+## ANTI-PATTERNS (THIS PROJECT)
+
+None explicitly defined. Standard Python/FastAPI best practices apply.
+
+## UNIQUE STYLES
+
+- **Modular Prompts**: Prompt assembly broken into fragments in `app/prompt_build/` (technical, account, formatters)
+- **Workflow Steps**: NOF1 workflow uses discrete steps in `app/workflow/steps/` (fetch, build, execute, notify)
+- **Virtual Trade Logic**: Account/order/position tracked separately in `app/virtual_trade/`
+- **Scheduler Integration**: APScheduler tasks defined in `app/scheduler/jobs.py`, started in `app/main.py` lifespan
+
+## COMMANDS
 
 ```bash
 # Install dependencies
@@ -19,145 +90,28 @@ uv sync
 # Run development server
 uv run serve.py
 
-# Lint and auto-fix code
+# Lint and auto-fix
 uv run ruff check --fix
 
 # Run tests
 uv run pytest
 
-# Run specific test file
-uv run pytest tests/api/routes/test_auth.py
-
-# Run specific test function
+# Run specific test
 uv run pytest tests/api/routes/test_auth.py::test_login_success
 
-# Run tests excluding integration tests
+# Exclude integration tests
 uv run pytest -m "not integration"
 
-# Apply database migrations (if alembic migrations are configured)
+# Apply DB migrations
 uv run alembic upgrade head
 ```
 
-## Architecture
+## NOTES
 
-### Module Hierarchy
-
-The application follows a modular architecture with clear separation of concerns:
-
-- **`app/main.py`**: FastAPI application entry point, initializes Agno, mounts routes/middleware/exception handlers
-- **`app/core/`**: Configuration (`config.py`), database sessions (`db.py`), dependencies (`deps.py`), initialization logic (`init_data.py`)
-- **`app/api/`**: HTTP API endpoints organized by feature in `routes/` subdirectories
-- **`app/agent/`**: LLM agent definitions and factories
-- **`app/data_source/`**: Market data adapters (e.g., Longport integration)
-- **`app/data_feed/`**: Market data processing and technical indicators calculation
-- **`app/prompt_build/`**: Prompt assembly for LLM context
-- **`app/models/`**: SQLModel database entities and Pydantic validation models
-- **`app/virtual_trade/`**: Virtual trading business logic (accounts, orders, positions)
-- **`app/workflow/`**: Workflow orchestration (e.g., NOF1 workflow)
-- **`app/scheduler/`**: Background task management using APScheduler (jobs definition and registry)
-- **`app/backtest/`**: Backtesting engine integrating history data and QuantStats analysis
-- **`app/utils/`**: Cross-cutting utilities (responses, exceptions, logging, calculators)
-
-### Data Flow
-
-1. **Market Data** → `data_source/` → `data_feed/` (technical indicators) → `prompt_build/`
-2. **Account Data** → `virtual_trade/` → `prompt_build/`
-3. **Prompt Assembly** → `workflow/` → `agent/` → LLM
-4. **Trading Signals** → `virtual_trade/` → Order execution → Position updates
-
-### Model Structure
-
-All database models follow a three-layer pattern:
-
-- `*Base`: Common fields shared across all model variants
-- Entity (`table=True`): SQLModel database table definition
-- `Create`/`Update`/`Read`: Pydantic validation models
-
-Primary keys use UUID v7. All models must inherit from `app/models/base_model.py`.
-Example reference: `app/models/post.py`
-
-## Development Guidelines
-
-### Code Standards
-
-- **Language**: All responses and documentation in Chinese
-- **Linting**: Ruff with line length 100, auto-fix enabled. Key rules: pycodestyle, Pyflakes, pyupgrade, flake8-bugbear, isort, fastapi-specific
-- **Type Hints**: Use modern `T | None` syntax (no `Optional[T]` required). All functions should have type hints.
-- **Imports**: Organized with isort; combine-as-imports enabled; **no longer** require `from __future__ import annotations` (leverages Python 3.13+ PEP 649 deferred evaluation)
-- **Naming**: snake_case for functions/variables, PascalCase for classes, UPPER_CASE for constants
-- **Error Handling**: Use custom exceptions from `app/utils/exceptions.py`, never expose sensitive data in error messages
-- **Simplicity**: Avoid over-engineering. Minimize cyclomatic complexity.
-- **Modifications**: Minimize changes to unrelated modules. Maximize code reuse.
-
-### Testing
-
-- Framework: pytest with async support
-- Database: SQLite for isolated testing via `tests/conftest.py`
-- Fixtures: Use existing `test_user` fixture, extend factories for test data
-- Authentication: Use `tests/utils/auth.py` for JWT-based auth testing
-- Markers: Integration tests marked with `@pytest.mark.integration`
-
-### API Development
-
-- Responses must use envelope pattern: `app/utils/responses.py`
-- Business exceptions inherit from `app/utils/exceptions.py`
-- Dependencies injected via `app/core/deps.py`
-- New routes added to `app/api/routes/` and registered in `app/api/__init__.py`
-
-### Agent Development
-
-- Agents built with Agno framework
-- Prompts assembled in `app/prompt_build/` with modular fragments
-- Trader agent example: `app/agent/trader_agent.py`
-- Workflow orchestration in `app/workflow/`
-- Scheduler integration in `app/scheduler/`
-
-### Scheduler Development
-
-- Framework: APScheduler (`AsyncIOScheduler`)
-- Lifecycle: Started within `app/main.py` lifespan context
-- Configuration: Tasks defined in `app/scheduler/jobs.py`
-
-### Backtest Development
-
-- Core Library: `quantstats` for performance metrics and reporting
-- Logic: Reuse `app/workflow/` by passing `end_date` to simulate historical points
-- Report: Generates HTML/JSON performance reports for trading strategies
-
-### Database Migrations
-
-- Alembic configured with SQLModel
-- New models must inherit from `app/models/base_model.py`
-- Table names use singular form of entity name
-
-### Environment Configuration
-
-- Copy `.env.example` to `.env` for local development
-- Update all three: `.env`, `.env.example`, and `app/core/config.py`
-- Secrets should never be committed to version control
-
-## Important Patterns
-
-### Dependency Injection
-
-All shared dependencies (DB sessions, auth) are centralized in `app/core/deps.py` and injected into route handlers.
-
-### Response Standardization
-
-All API responses use the envelope pattern:
-
-```python
-from app.utils.responses import success_response, error_response
-```
-
-### Logging
-
-Centralized Loguru configuration in `app/utils/logging.py` with request logging middleware.
-
-### Exception Handling
-
-Custom exceptions inherit from base classes in `app/utils/exceptions.py` and are automatically converted to standardized responses.
-
-## Tools or Skills
-
-Always use context7 when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
+- **Database Schema**: Uses PostgreSQL or SQLite via `DATABASE_TYPE` config
+- **Market Data**: Longport API integration via `app/data_source/longport_source.py`
+- **Technical Indicators**: TA-Lib calculations via `app/utils/talib_calculator.py`
+- **Test DB**: SQLite in-memory per test session (see `tests/conftest.py`)
+- **Authentication**: FastAPI-Users with JWT, custom UserManager in `app/core/deps.py`
+- **Alembic Configured**: Exclude `alembic/` from Ruff (see pyproject.toml)
+- **Async Scheduler**: APScheduler `AsyncIOScheduler` started in FastAPI lifespan
