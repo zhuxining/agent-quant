@@ -1,8 +1,7 @@
 from datetime import datetime
-from uuid import UUID
+from uuid import UUID, uuid7
 
 from sqlmodel import DateTime, Field, SQLModel, func
-from uuid_extensions import uuid7
 
 from app.core.config import settings
 
@@ -14,7 +13,7 @@ class BaseModel(SQLModel):
         __table_args__ = {"schema": settings.POSTGRES_SCHEMA}
 
     id: UUID = Field(
-        default_factory=uuid7,
+        default_factory=lambda: uuid7(),
         primary_key=True,
         sa_column_kwargs={"comment": "主键ID, UUID v7"},
     )

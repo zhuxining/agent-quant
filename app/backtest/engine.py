@@ -3,11 +3,10 @@
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from decimal import Decimal
-from uuid import UUID
+from uuid import UUID, uuid7
 
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
-from uuid_extensions import uuid7str
 
 from app.backtest.equity import EquityCurve, EquityPoint
 from app.data_feed.technical_indicator import TechnicalIndicatorFeed
@@ -106,7 +105,7 @@ class BacktestEngine:
         import json
 
         # 创建回测运行记录
-        account_number = f"BT-{uuid7str()[:12].upper()}"
+        account_number = f"BT-{str(uuid7())[:12].upper()}"
 
         self._backtest_run = BacktestRun(
             name=self.config.name,
