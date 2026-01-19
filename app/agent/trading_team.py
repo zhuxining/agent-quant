@@ -88,7 +88,9 @@ def create_trading_team(
     Returns:
         已配置的 Team 实例
     """
-    members = [
+    model = get_available_model(model_name)
+
+    agents = [
         decision_synthesis_agent(model_name=model_name, debug_mode=debug_mode),
         news_sentiment_agent(model_name=model_name, debug_mode=debug_mode),
         technical_analysis_agent(model_name=model_name, debug_mode=debug_mode),
@@ -98,7 +100,7 @@ def create_trading_team(
 
     return Team(
         name="trading-team",
-        members=members,
+        agents=agents,
         db=_get_team_db(),
         description=_get_team_description(),
         instructions=_get_team_instructions(),
