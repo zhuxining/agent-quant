@@ -1,5 +1,4 @@
 from textwrap import dedent
-from typing import Any
 
 from agno.agent import Agent
 from agno.db.postgres import AsyncPostgresDb
@@ -7,7 +6,7 @@ from agno.db.sqlite import AsyncSqliteDb
 from pydantic import BaseModel
 
 from app.agent.available_models import ModelName, get_available_model
-from app.agent.trader_agent import AgentOutput, TradeAction
+from app.agent.trader_agent import TradeAction
 from app.core.config import settings
 
 

@@ -128,10 +128,7 @@ class AkShareSource:
             包含新闻数据的字典列表
         """
         try:
-            if symbol:
-                df = ak.stock_news_em(symbol=symbol)
-            else:
-                df = ak.stock_news_em()
+            df = ak.stock_news_em(symbol=symbol) if symbol else ak.stock_news_em()
 
             news_list = []
             for _, row in df.head(limit).iterrows():

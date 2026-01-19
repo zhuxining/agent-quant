@@ -78,6 +78,7 @@ ignore = [
     # "F401",   # imported but unused
     # "F841",   # local variable assigned but never used
 ]
+allowed-confusables = ["，", "。", "：", "；", "！", "？", "（", "）", "“", "”"]
 unfixable = []
 
 [tool.ruff.lint.isort]

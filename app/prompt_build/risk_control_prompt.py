@@ -1,7 +1,5 @@
 from textwrap import dedent
 
-from app.prompt_build.formatters import fmt_number, fmt_pct
-
 
 def build_risk_control_prompt(
     decision: str,

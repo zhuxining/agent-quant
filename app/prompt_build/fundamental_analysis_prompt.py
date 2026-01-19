@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from app.prompt_build.formatters import fmt_number, fmt_pct
+from app.prompt_build.formatters import fmt_number
 
 
 def build_fundamental_analysis_prompt(

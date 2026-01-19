@@ -2,7 +2,7 @@ from textwrap import dedent
 
 from agno.team import Team
 
-from app.agent.available_models import ModelName, get_available_model
+from app.agent.available_models import ModelName
 from app.agent.decision_synthesis_agent import decision_synthesis_agent
 from app.agent.fundamental_analysis_agent import fundamental_analysis_agent
 from app.agent.news_sentiment_agent import news_sentiment_agent
