@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from typing import Any
 
 import pandas as pd
@@ -119,6 +120,33 @@ class TechnicalIndicatorFeed:
         """
         self.indicator_calculator = indicator_calculator or IndicatorCalculator
         self.source = source or LongportSource()
+
+    def get_latest_price(
+        self,
+        symbol: str,
+        period: str = "1d",
+        end_date: datetime | None = None,
+    ) -> Decimal | None:
+        """获取指定标的的最新价格。
+
+        Args:
+            symbol: 股票代码
+            period: K 线周期，默认为日 K
+            end_date: 结束日期，None 表示当前时间
+
+        Returns:
+            最新收盘价，如果无法获取则返回 None
+        """
+        try:
+            snapshot = self.build_snapshot(
+                symbol=symbol,
+                period=period,
+                count=1,
+                end_date=end_date,
+            )
+            return Decimal(str(snapshot.latest_price)) if snapshot.latest_price else None
+        except Exception:
+            return None
 
     def build_snapshot(
         self,

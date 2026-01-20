@@ -1,5 +1,8 @@
+from collections.abc import Sequence
 from textwrap import dedent
 
+from agno.db.postgres import AsyncPostgresDb
+from agno.db.sqlite import AsyncSqliteDb
 from agno.team import Team
 
 from app.agent.available_models import ModelName
@@ -11,11 +14,8 @@ from app.agent.technical_analysis_agent import technical_analysis_agent
 from app.core.config import settings
 
 
-def _get_team_db() -> object:
+def _get_team_db() -> AsyncPostgresDb | AsyncSqliteDb:
     """根据配置返回 Team 使用的数据库连接。"""
-    from agno.db.postgres import AsyncPostgresDb
-    from agno.db.sqlite import AsyncSqliteDb
-
     if settings.DATABASE_TYPE == "postgresql":
         return AsyncPostgresDb(id="trading_team_db", db_url=str(settings.postgre_url))
     return AsyncSqliteDb(id="trading_team_db", db_file="tmp/local.db")
@@ -88,9 +88,7 @@ def create_trading_team(
     Returns:
         已配置的 Team 实例
     """
-    model = get_available_model(model_name)
-
-    agents = [
+    members: Sequence[object] = [
         decision_synthesis_agent(model_name=model_name, debug_mode=debug_mode),
         news_sentiment_agent(model_name=model_name, debug_mode=debug_mode),
         technical_analysis_agent(model_name=model_name, debug_mode=debug_mode),
@@ -100,7 +98,7 @@ def create_trading_team(
 
     return Team(
         name="trading-team",
-        agents=agents,
+        members=members,
         db=_get_team_db(),
         description=_get_team_description(),
         instructions=_get_team_instructions(),
