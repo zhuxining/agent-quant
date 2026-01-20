@@ -2,9 +2,7 @@
 
 from datetime import datetime
 from decimal import Decimal
-from uuid import uuid7
 
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import (
@@ -14,7 +12,10 @@ from app.models import (
     VirtualTradeOrder,
 )
 from app.paper_trading.commission import CommissionCalculator
-from app.paper_trading.slippage import SlippageCalculator
+from app.paper_trading.slippage import (
+    PercentageSlippageCalculator,
+    SlippageCalculator,
+)
 from app.paper_trading.trading_config import TradingConfig
 
 
@@ -96,7 +97,9 @@ class EnhancedOrderExecutor:
         """
         self.config = config or TradingConfig()
         self.commission_calculator = commission_calculator or CommissionCalculator()
-        self.slippage_calculator = slippage_calculator or SlippageCalculator()
+        self.slippage_calculator = slippage_calculator or PercentageSlippageCalculator(
+            slippage_rate=self.config.slippage_pct
+        )
 
     async def execute_order(
         self,
@@ -104,7 +107,7 @@ class EnhancedOrderExecutor:
         *,
         account_number: str,
         symbol_exchange: str,
-        market_type: MarketType,
+        market_type: str | None,
         side: OrderSide,
         quantity: int,
         order_type: OrderType = OrderType.MARKET,
@@ -155,6 +158,9 @@ class EnhancedOrderExecutor:
             execution_time=execution_time,
         )
 
+        if executed_price is None:
+            raise OrderValidationError(f"无法获取 {symbol_exchange} 的最新价格")
+
         slippage_amount = self.slippage_calculator.calculate(
             price=executed_price,
             quantity=quantity,
@@ -163,36 +169,22 @@ class EnhancedOrderExecutor:
 
         final_price = executed_price + slippage_amount
 
-        commission = self.commission_calculator.calculate(
+        commission = self.commission_calculator.calculate_by_shares(
             price=final_price,
-            quantity=quantity,
-            side=side,
+            shares=quantity,
+            config=self.config,
         )
 
         order = VirtualTradeOrder(
-            id=uuid7(),
             account_number=account_number,
             symbol_exchange=symbol_exchange,
             side=side,
             order_type=order_type,
             quantity=quantity,
-            price=limit_price if order_type == OrderType.LIMIT else executed_price,
-            limit_price=limit_price,
+            price=limit_price,
             status=OrderStatus.FILLED,
             executed_quantity=quantity,
             average_price=final_price,
-            commission=commission,
-            slippage=slippage_amount,
-            created_at=execution_time,
-            updated_at=execution_time,
-        )
-
-        session.add(order)
-        await session.flush()
-
-        logger.info(
-            f"订单执行成功: {side.name} {quantity} {symbol_exchange} @ {final_price} "
-            f"(佣金: {commission}, 滑点: {slippage_amount})"
         )
 
         return OrderExecutionResult(
@@ -209,7 +201,7 @@ class EnhancedOrderExecutor:
         *,
         account_number: str,
         symbol_exchange: str,
-        market_type: MarketType,
+        market_type: str | None,
         side: OrderSide,
         quantity: int,
         order_type: OrderType,
@@ -224,15 +216,9 @@ class EnhancedOrderExecutor:
             raise OrderValidationError("限价单必须指定价格")
 
         if order_type == OrderType.LIMIT and limit_price is not None and limit_price <= 0:
-            raise OrderValidationError("限价单价格必须大于 0")
+            raise OrderValidationError("限价单价格必须大于0")
 
-        if not self.config.is_trading_hours(execution_time):
-            raise TradingHoursViolationError(
-                f"非交易时段: {execution_time.time()}, "
-                f"允许时段: {self.config.trading_hours_start} - {self.config.trading_hours_end}"
-            )
-
-        if side == OrderSide.SELL and self.config.enable_t_plus_1:
+        if side == OrderSide.SELL and self.config.t_plus_1_enabled:
             await self._check_t_plus_1_restriction(
                 session=session,
                 account_number=account_number,
@@ -258,11 +244,15 @@ class EnhancedOrderExecutor:
             VirtualTradeOrder.symbol_exchange == symbol_exchange,
             VirtualTradeOrder.side == OrderSide.BUY,
             VirtualTradeOrder.status == OrderStatus.FILLED,
-            VirtualTradeOrder.created_at >= today_start,
         )
 
+        # Additional filtering in Python to handle nullable created_at
         result = await session.execute(statement)
-        buy_orders = result.scalars().all()
+        buy_orders = [
+            order
+            for order in result.scalars().all()
+            if order.created_at is not None and order.created_at >= today_start
+        ]
 
         if buy_orders:
             total_bought = sum(order.executed_quantity for order in buy_orders)
@@ -279,7 +269,7 @@ class EnhancedOrderExecutor:
         order_type: OrderType,
         limit_price: Decimal | None,
         execution_time: datetime,
-    ) -> Decimal:
+    ) -> Decimal | None:
         """获取执行价格。"""
         if order_type == OrderType.LIMIT:
             return limit_price

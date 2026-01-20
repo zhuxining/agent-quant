@@ -1,6 +1,6 @@
-from collections.abc import Sequence
 from textwrap import dedent
 
+from agno.agent import Agent
 from agno.db.postgres import AsyncPostgresDb
 from agno.db.sqlite import AsyncSqliteDb
 from agno.team import Team
@@ -88,7 +88,7 @@ def create_trading_team(
     Returns:
         已配置的 Team 实例
     """
-    members: Sequence[object] = [
+    members: list[Agent | Team] = [
         decision_synthesis_agent(model_name=model_name, debug_mode=debug_mode),
         news_sentiment_agent(model_name=model_name, debug_mode=debug_mode),
         technical_analysis_agent(model_name=model_name, debug_mode=debug_mode),

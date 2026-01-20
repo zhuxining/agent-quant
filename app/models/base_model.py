@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid7
 
-from sqlmodel import DateTime, Field, SQLModel, func
+from sqlmodel import Field, SQLModel, func
 
 from app.core.config import settings
 
@@ -19,7 +19,6 @@ class BaseModel(SQLModel):
     )
     created_at: datetime | None = Field(
         default=None,
-        sa_type=DateTime(timezone=True),
         sa_column_kwargs={
             "server_default": func.current_timestamp(),
             "comment": "创建时间, timestamptz",
@@ -27,7 +26,6 @@ class BaseModel(SQLModel):
     )
     updated_at: datetime | None = Field(
         default=None,
-        sa_type=DateTime(timezone=True),
         sa_column_kwargs={
             "onupdate": func.current_timestamp(),
             "comment": "更新时间, timestamptz",
@@ -39,7 +37,6 @@ class BaseModel(SQLModel):
     )
     deleted_at: datetime | None = Field(
         default=None,
-        sa_type=DateTime(timezone=True),
         sa_column_kwargs={
             "comment": "删除时间, timestamptz",
         },

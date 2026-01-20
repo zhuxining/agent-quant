@@ -60,7 +60,7 @@ def _get_workflow_db() -> AsyncPostgresDb | AsyncSqliteDb:
 # Team 作为 Workflow 的一个 Step
 trading_team_step = Step(
     name="Multi-Agent Team Execution",
-    agent=create_trading_team(),
+    team=create_trading_team(),
     description="使用 Trading Team 进行多维度交易分析",
     max_retries=2,
     timeout_seconds=300,

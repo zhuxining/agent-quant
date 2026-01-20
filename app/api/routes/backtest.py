@@ -26,8 +26,8 @@ class BacktestRunCreate(BaseModel):
     mode: ClassVar[BacktestMode] = BacktestMode.VECTORIZED
 
     symbols: ClassVar[list[str]] = ["000001.SZ"]
-    start_date: ClassVar[date] = "2024-01-01"
-    end_date: ClassVar[date] = "2024-12-31"
+    start_date: ClassVar[date] = date(2024, 1, 1)
+    end_date: ClassVar[date] = date(2024, 12, 31)
 
     initial_capital: ClassVar[Decimal] = Decimal("100000")
 

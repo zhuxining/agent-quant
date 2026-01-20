@@ -58,14 +58,10 @@ class CommissionCalculator(BaseModel):
         Returns:
             最小手续费
         """
+        # 中国A股最低收费 5 元
+        commission_min = Decimal("5")
         min_commission = amount * config.commission_rate
-
-        if config.commission_min is not None:
-            min_amount = max(min_commission, config.commission_min)
-        else:
-            min_amount = amount * config.commission_rate
-
-        return max(min_commission, min_amount)
+        return max(min_commission, commission_min)
 
 
 def calculate_commission(
@@ -84,10 +80,10 @@ def calculate_commission(
                 "min_commission": 最小手续费,
             }
     """
-    from .trading_config import get_default_config
+    from app.paper_trading.trading_config import TradingConfigFactory
 
     if config is None:
-        config = get_default_config()
+        config = TradingConfigFactory.get_default_config()
 
     if isinstance(trade_amount, (int | float)):
         if trade_amount <= 0:

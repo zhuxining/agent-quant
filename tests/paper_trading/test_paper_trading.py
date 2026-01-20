@@ -4,15 +4,12 @@ from decimal import Decimal
 
 from app.paper_trading import (
     CommissionCalculator,
-    EnhancedOrderExecutor,
     TradingConfig,
     TradingConfigFactory,
-    build_account_overview,
 )
 from app.paper_trading.slippage import (
     NoSlippageCalculator,
     PercentageSlippageCalculator,
-    SlippageType,
 )
 
 
@@ -55,7 +52,7 @@ def test_commission_calculation():
         commission_rate=Decimal("0.0003"),
         slippage_pct=Decimal("0.001"),
     )
-    calculator = CommissionCalculator(config)
+    calculator = CommissionCalculator()
 
     # 测试按成交金额计算
     amount = Decimal("10000")
@@ -68,7 +65,7 @@ def test_commission_calculation():
     print("手续费计算测试结果")
     print(f"{'=' * 60}")
     print(f"交易金额: {amount}")
-    print(f"手续费率: 0.03%")
+    print("手续费率: 0.03%")
     print(f"手续费: {commission}")
     print(f"{'=' * 60}\n")
 
@@ -81,7 +78,7 @@ def test_commission_by_shares():
         commission_rate=Decimal("0.0003"),
         slippage_pct=Decimal("0.001"),
     )
-    calculator = CommissionCalculator(config)
+    calculator = CommissionCalculator()
 
     price = Decimal("10.0")
     shares = 1000
@@ -133,7 +130,7 @@ def test_percentage_slippage():
     print(f"\n{'=' * 60}")
     print("百分比滑点测试结果")
     print(f"{'=' * 60}")
-    print(f"滑点率: 0.1%")
+    print("滑点率: 0.1%")
     print(f"买入滑点: {buy_slippage}")
     print(f"卖出滑点: {sell_slippage}")
     print(f"{'=' * 60}\n")
@@ -152,8 +149,8 @@ def test_no_slippage():
     print(f"\n{'=' * 60}")
     print("无滑点测试结果")
     print(f"{'=' * 60}")
-    print(f"买入滑点: 0")
-    print(f"卖出滑点: 0")
+    print("买入滑点: 0")
+    print("卖出滑点: 0")
     print(f"{'=' * 60}\n")
 
     return True
@@ -177,8 +174,8 @@ def test_trading_config_factory():
     print(f"\n{'=' * 60}")
     print("交易配置工厂测试结果")
     print(f"{'=' * 60}")
-    print(f"默认配置: ✅")
-    print(f"字典创建配置: ✅")
+    print("默认配置: ✅")
+    print("字典创建配置: ✅")
     print(f"{'=' * 60}\n")
 
     return True
@@ -188,9 +185,10 @@ def test_total_cost_and_net_proceeds():
     """测试订单执行结果的总成本和净收益计算。"""
 
     # 模拟订单执行结果
-    from app.paper_trading.enhanced_order import OrderExecutionResult
-    from app.models import OrderSide, OrderType, OrderStatus, VirtualTradeOrder
     import uuid
+
+    from app.models import OrderSide, OrderStatus, OrderType, VirtualTradeOrder
+    from app.paper_trading.enhanced_order import OrderExecutionResult
 
     order = VirtualTradeOrder(
         id=uuid.uuid4(),
@@ -258,10 +256,10 @@ def test_trading_config_validation():
     print(f"\n{'=' * 60}")
     print("交易配置验证测试结果")
     print(f"{'=' * 60}")
-    print(f"手续费率范围: ✅ (0 ~ 0.1%)")
-    print(f"滑点率范围: ✅ (0 ~ 1%)")
-    print(f"止损止盈范围: ✅ (0 ~ 100%)")
-    print(f"持仓限制范围: ✅ (0 ~ 100%)")
+    print("手续费率范围: ✅ (0 ~ 0.1%)")
+    print("滑点率范围: ✅ (0 ~ 1%)")
+    print("止损止盈范围: ✅ (0 ~ 100%)")
+    print("持仓限制范围: ✅ (0 ~ 100%)")
     print(f"{'=' * 60}\n")
 
     return True

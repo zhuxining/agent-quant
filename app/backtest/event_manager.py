@@ -8,7 +8,7 @@ from typing import ClassVar
 from uuid import UUID
 
 from loguru import logger
-from sqlmodel import Session, select
+from sqlmodel import Session, desc, select
 
 from app.models.historical_event import (
     EventImpactAnalysis,
@@ -190,7 +190,7 @@ class HistoricalEventManager:
         self.session = session
         self.impact_calculator = ImpactScoreCalculator()
 
-    async def create_event(
+    def create_event(
         self,
         event: HistoricalEventCreate,
         source: str = "manual",
@@ -217,12 +217,12 @@ class HistoricalEventManager:
         )
 
         self.session.add(new_event)
-        await self.session.flush()
+        self.session.flush()
 
         logger.info(f"创建历史事件: {event.title} (评分: {impact_score})")
         return new_event
 
-    async def get_events(
+    def get_events(
         self,
         symbol: str | None = None,
         event_type: EventType | None = None,
@@ -256,13 +256,13 @@ class HistoricalEventManager:
         if end_date:
             statement = statement.where(HistoricalEvent.event_date <= end_date)
 
-        statement = statement.order_by(HistoricalEvent.event_date.desc())
+        statement = statement.order_by(desc(HistoricalEvent.event_date))
         statement = statement.limit(limit)
 
-        result = await self.session.execute(statement)
-        return result.scalars().all()
+        result = self.session.execute(statement)
+        return list(result.scalars().all())
 
-    async def get_event_by_id(self, event_id: UUID) -> HistoricalEvent | None:
+    def get_event_by_id(self, event_id: UUID) -> HistoricalEvent | None:
         """根据 ID 获取事件。
 
         Args:
@@ -272,10 +272,10 @@ class HistoricalEventManager:
             历史事件对象，不存在返回 None
         """
         statement = select(HistoricalEvent).where(HistoricalEvent.id == event_id)
-        result = await self.session.execute(statement)
+        result = self.session.execute(statement)
         return result.scalar_one_or_none()
 
-    async def update_event(
+    def update_event(
         self,
         event_id: UUID,
         event_update: HistoricalEventUpdate,
@@ -290,7 +290,7 @@ class HistoricalEventManager:
             更新后的事件对象，不存在返回 None
         """
         statement = select(HistoricalEvent).where(HistoricalEvent.id == event_id)
-        result = await self.session.execute(statement)
+        result = self.session.execute(statement)
         event = result.scalar_one_or_none()
 
         if event is None:
@@ -308,13 +308,13 @@ class HistoricalEventManager:
 
         event.updated_at = datetime.now()
 
-        await self.session.commit()
-        await self.session.refresh(event)
+        self.session.commit()
+        self.session.refresh(event)
 
         logger.info(f"更新历史事件: {event.title}")
         return event
 
-    async def delete_event(self, event_id: UUID) -> bool:
+    def delete_event(self, event_id: UUID) -> bool:
         """删除历史事件。
 
         Args:
@@ -324,20 +324,20 @@ class HistoricalEventManager:
             是否删除成功
         """
         statement = select(HistoricalEvent).where(HistoricalEvent.id == event_id)
-        result = await self.session.execute(statement)
+        result = self.session.execute(statement)
         event = result.scalar_one_or_none()
 
         if event is None:
             logger.warning(f"事件不存在: {event_id}")
             return False
 
-        await self.session.delete(event)
-        await self.session.commit()
+        self.session.delete(event)
+        self.session.commit()
 
         logger.info(f"删除历史事件: {event.title}")
         return True
 
-    async def analyze_impact(
+    def analyze_impact(
         self,
         symbol: str,
         start_date: date,
@@ -359,7 +359,7 @@ class HistoricalEventManager:
             HistoricalEvent.event_date <= end_date,
         )
 
-        result = await self.session.execute(statement)
+        result = self.session.execute(statement)
         events = result.scalars().all()
 
         total_events = len(events)
@@ -379,7 +379,7 @@ class HistoricalEventManager:
             avg_impact_score=avg_impact_score,
         )
 
-    async def get_events_by_date_range(
+    def get_events_by_date_range(
         self,
         symbol: str,
         start_date: date,
@@ -401,10 +401,10 @@ class HistoricalEventManager:
             HistoricalEvent.event_date <= end_date,
         )
 
-        statement = statement.order_by(HistoricalEvent.event_date, HistoricalEvent.event_type)
+        statement = statement.order_by(desc(HistoricalEvent.event_date))
 
-        result = await self.session.execute(statement)
-        events = result.scalars().all()
+        result = self.session.execute(statement)
+        events = list(result.scalars().all())
 
         grouped_events: dict[str, list[HistoricalEvent]] = {}
         for event in events:

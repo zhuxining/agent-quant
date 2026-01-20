@@ -133,6 +133,7 @@ class BacktestEngine:
             _result_df, metrics = self._vectorized_engine.run()
 
             logger.info(f"回测完成: 总收益率 {metrics.total_return:.2f}%")
+            assert self._backtest_run is not None
             return BacktestResult(
                 run_id=self._backtest_run.id,
                 equity_curve=self.equity_curve,

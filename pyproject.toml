@@ -33,7 +33,7 @@ dev = [
     "alembic>=1.17.1",
     "ipykernel>=7.1.0",
     "ipywidgets>=8.1.7",
-
+    "lefthook>=2.0.15",
 ]
 
 [build-system]
