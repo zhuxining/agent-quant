@@ -4,9 +4,11 @@
 """
 
 from .account_position import build_account_prompt
+from .historical_loader import HistoricalDataLoader
 from .technical_indicator import TechnicalIndicatorFeed, TechnicalSnapshot
 
 __all__ = [
+    "HistoricalDataLoader",
     "TechnicalIndicatorFeed",
     "TechnicalSnapshot",
     "build_account_prompt",

@@ -3,6 +3,7 @@
 from .engine import BacktestConfig, BacktestEngine, BacktestResult
 from .equity import EquityCurve, EquityPoint
 from .report import BacktestReporter
+from .vectorized_technical import VectorizedBacktestEngine
 
 __all__ = [
     "BacktestConfig",
@@ -11,4 +12,5 @@ __all__ = [
     "BacktestResult",
     "EquityCurve",
     "EquityPoint",
+    "VectorizedBacktestEngine",
 ]

@@ -48,7 +48,7 @@ from .slippage import (
     SlippageCalculator,
     SlippageType,
 )
-from .trading_config import TradingConfig
+from .trading_config import TradingConfig, TradingConfigFactory
 
 __all__ = [
     # account
@@ -82,6 +82,7 @@ __all__ = [
     "TradeOrderError",
     # trading config
     "TradingConfig",
+    "TradingConfigFactory",
     "TradingHoursViolationError",
     "apply_buy_to_position",
     "apply_order_settlement",

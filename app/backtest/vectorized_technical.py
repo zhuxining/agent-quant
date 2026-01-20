@@ -124,7 +124,7 @@ class VectorizedBacktestEngine:
         try:
             bars = source.get_candles_frame(
                 symbol=symbol,
-                interval="1d",
+                period="daily",
                 count=None,
                 end_date=None,
             )
