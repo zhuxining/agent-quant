@@ -5,8 +5,8 @@ from agno.workflow.types import StepInput, StepOutput
 from loguru import logger
 
 from app.core.db import async_session_maker
-from app.virtual_trade.account import AccountOverview, build_account_overview
-from app.virtual_trade.position import PositionOverview, list_position_overviews
+from app.paper_trading.account import AccountOverview, build_account_overview
+from app.paper_trading.position import PositionOverview, list_position_overviews
 from app.workflow.steps.utils import parse_step_input
 
 

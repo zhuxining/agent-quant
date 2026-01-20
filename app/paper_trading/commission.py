@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.paper_trading.trading_config import TradingConfig
 
@@ -69,7 +69,7 @@ class CommissionCalculator(BaseModel):
 
 
 def calculate_commission(
-    trade_amount: Decimal | float | Decimal,
+    trade_amount: Decimal | float | int,
     config: TradingConfig | None = None,
 ) -> dict:
     """计算手续费（支持单笔和批量）。
@@ -84,6 +84,8 @@ def calculate_commission(
                 "min_commission": 最小手续费,
             }
     """
+    from .trading_config import get_default_config
+
     if config is None:
         config = get_default_config()
 
@@ -91,14 +93,12 @@ def calculate_commission(
         if trade_amount <= 0:
             raise ValueError("交易金额必须大于0")
 
-        amount = Decimal(strade_amount)
+        amount = Decimal(str(trade_amount))
+    else:
+        amount = trade_amount
 
     commission = amount * config.commission_rate
-    min_commission = calculate_min_commission(amount, config)
-
-    min_amount = config.commission_min
-    if min_amount is not None:
-        min_amount = max(commission, min_amount)
+    min_commission = commission
 
     return {
         "commission": commission,
@@ -107,6 +107,6 @@ def calculate_commission(
 
 
 __all__ = [
-    "calculate_commission",
     "CommissionCalculator",
+    "calculate_commission",
 ]

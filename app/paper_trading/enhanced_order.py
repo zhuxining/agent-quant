@@ -4,7 +4,6 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import uuid7
 
-from app.paper_trading.slippage import SlippageCalculator
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,6 +15,7 @@ from app.models import (
     VirtualTradeOrder,
 )
 from app.paper_trading.commission import CommissionCalculator
+from app.paper_trading.slippage import SlippageCalculator
 from app.paper_trading.trading_config import TradingConfig
 
 

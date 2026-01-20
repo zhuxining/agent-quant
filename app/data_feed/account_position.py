@@ -3,9 +3,9 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.paper_trading.account import AccountOverview, build_account_overview
+from app.paper_trading.position import list_position_overviews
 from app.prompt_build.account_prompt import build_account_prompt as format_account_prompt
-from app.virtual_trade.account import AccountOverview, build_account_overview
-from app.virtual_trade.position import list_position_overviews
 
 
 async def build_account_prompt(

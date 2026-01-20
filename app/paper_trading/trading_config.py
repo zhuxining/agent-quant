@@ -1,9 +1,8 @@
 """Paper Trading 交易配置。"""
 
 from decimal import Decimal
-from pydantic import BaseModel, Field, field_validator
 
-from app.core.config import settings
+from pydantic import BaseModel, Field
 
 
 class TradingConfig(BaseModel):
@@ -78,7 +77,8 @@ class TradingConfig(BaseModel):
         description="默认止损比例（2%）",
     )
 
-    default_take_profit_pct: Decimal = Decimal("0.05"),
+    default_take_profit_pct: Decimal = Field(
+        default=Decimal("0.05"),
         ge=Decimal("0"),
         description="默认止盈比例（5%）",
     )
@@ -119,7 +119,4 @@ __all__ = [
     "TradingConfig",
     "TradingConfigFactory",
     "get_trading_config",
-    "get_default_config",
-    "get_from_dict",
-    "get_from_env",
 ]

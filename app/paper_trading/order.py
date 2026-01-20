@@ -13,11 +13,12 @@ from app.models import (
     VirtualTradeOrder,
     VirtualTradePosition,
 )
-from app.paper_trading.account import (
+
+from .account import (
     AccountSnapshot,
     apply_order_settlement,
 )
-from app.paper_trading.position import (
+from .position import (
     apply_buy_to_position,
     apply_sell_to_position,
     calculate_realized_pnl,

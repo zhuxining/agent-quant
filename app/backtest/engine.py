@@ -16,7 +16,7 @@ from app.models import (
     BacktestStatus,
     VirtualTradeAccount,
 )
-from app.virtual_trade.position import list_position_overviews
+from app.paper_trading.position import list_position_overviews
 from app.workflow.nof1_workflow import run_nof1_workflow
 
 # 默认配置

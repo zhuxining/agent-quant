@@ -10,7 +10,7 @@ from loguru import logger
 
 from app.core.db import async_session_maker
 from app.data_feed.technical_indicator import TechnicalIndicatorFeed
-from app.virtual_trade.order import (
+from app.paper_trading.order import (
     OrderExecutionResult,
     place_buy_order,
     place_sell_order,
