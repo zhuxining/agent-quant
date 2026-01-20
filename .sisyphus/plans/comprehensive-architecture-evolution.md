@@ -460,6 +460,7 @@ async def bulk_import_events(csv_path: str):
 #### ✅ Task 3.1: 创建历史事件模型
 - 创建 `app/models/historical_event.py`
 - 定义 `HistoricalEvent` 模型
+- 定义 `HistoricalEvent` 模型
 
 #### ✅ Task 3.2: 实现事件管理器
 - 创建 `app/backtest/event_manager.py`
@@ -474,6 +475,9 @@ async def bulk_import_events(csv_path: str):
 #### ✅ Task 3.4: 创建事件导入脚本
 - 创建 `scripts/manage_events.py`
 - 实现批量导入功能
+- CSV 格式：date,symbol,event_type,title,content,impact_score
+- 支持手动、LLM 和 CSV 导入
+- 包含数据验证和导入统计
 
 ### Week 7-10：重构回测引擎（阶段 2）
 
