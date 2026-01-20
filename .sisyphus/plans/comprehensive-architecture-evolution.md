@@ -457,18 +457,21 @@ async def bulk_import_events(csv_path: str):
 
 ### Week 5-6：历史事件管理（阶段 1）
 
-#### Task 3.1: 创建历史事件模型
+#### ✅ Task 3.1: 创建历史事件模型
 - 创建 `app/models/historical_event.py`
 - 定义 `HistoricalEvent` 模型
 
-#### Task 3.2: 实现事件管理器
+#### ✅ Task 3.2: 实现事件管理器
 - 创建 `app/backtest/event_manager.py`
 - 实现事件的 CRUD 操作
+- 实现影响评分逻辑
 
-#### Task 3.3: 创建事件评分逻辑
+#### ✅ Task 3.3: 创建事件评分逻辑
 - 在 `app/backtest/event_manager.py` 实现 `calculate_impact_score()`
+- 支持新闻、财报、政策、宏观事件类型
+- 关键词匹配算法
 
-#### Task 3.4: 创建事件导入脚本
+#### ✅ Task 3.4: 创建事件导入脚本
 - 创建 `scripts/manage_events.py`
 - 实现批量导入功能
 
