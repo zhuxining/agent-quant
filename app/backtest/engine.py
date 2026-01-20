@@ -9,12 +9,19 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.backtest.equity import EquityCurve, EquityPoint
+from app.backtest.vectorized_technical import (
+    VectorizedBacktestConfig as VectorizedConfig,
+    VectorizedBacktestEngine,
+)
 from app.data_feed.technical_indicator import TechnicalIndicatorFeed
 from app.models import (
     BacktestDailyEquity,
     BacktestRun,
     BacktestStatus,
     VirtualTradeAccount,
+)
+from app.models.backtest import (
+    BacktestMode,
 )
 from app.paper_trading.position import list_position_overviews
 from app.workflow.nof1_workflow import run_nof1_workflow
@@ -34,6 +41,7 @@ class BacktestConfig:
     end_date: date
     initial_capital: Decimal = DEFAULT_INITIAL_CAPITAL
     interval_days: int = DEFAULT_INTERVAL_DAYS
+    mode: BacktestMode = BacktestMode.VIRTUAL
 
 
 @dataclass
@@ -51,8 +59,11 @@ class BacktestResult:
 class BacktestEngine:
     """回测引擎。
 
-    遍历指定日期范围, 每隔 interval_days 调用一次 Workflow,
-    记录每日净值并生成绩效报告。
+    支持两种模式：
+    1. VIRTUAL - 遍历日期，调用 Workflow（Multi-Agent）
+    2. VECTORIZED - 向量化技术面回测（快速验证）
+
+    遍历指定日期范围, 记录每日净值并生成绩效报告。
     """
 
     def __init__(self, config: BacktestConfig, session: AsyncSession) -> None:
@@ -63,34 +74,44 @@ class BacktestEngine:
         self._account: VirtualTradeAccount | None = None
         self._feed = TechnicalIndicatorFeed()
 
+        if config.mode == BacktestMode.VECTORIZED:
+            vectorized_config = VectorizedConfig(
+                mode=BacktestMode.VECTORIZED,
+                symbols=config.symbols,
+                start_date=config.start_date,
+                end_date=config.end_date,
+                initial_capital=config.initial_capital,
+            )
+            self._vectorized_engine = VectorizedBacktestEngine(vectorized_config)
+
     async def run(self) -> BacktestResult:
         """执行回测。"""
+        if self.config.mode == BacktestMode.VECTORIZED:
+            return await self._run_vectorized_backtest()
+
+        return await self._run_virtual_backtest()
+
+    async def _run_virtual_backtest(self) -> BacktestResult:
+        """执行虚拟回测（使用 Workflow）。"""
         try:
-            # 1. 初始化回测记录和账户
             await self._initialize()
-            logger.info(f"开始回测: {self.config.name}")
+            logger.info(f"开始回测: {self.config.name} (VIRTUAL 模式)")
             logger.info(
                 f"日期范围: {self.config.start_date} → {self.config.end_date}, "
                 f"间隔: {self.config.interval_days}天"
             )
 
-            # 2. 更新状态为运行中
             await self._update_status(BacktestStatus.RUNNING)
 
-            # 3. 遍历交易日
             trading_days = list(self._iter_trading_days())
             logger.info(f"共 {len(trading_days)} 个决策点")
 
             for i, sim_date in enumerate(trading_days):
                 logger.info(f"[{i + 1}/{len(trading_days)}] 模拟日期: {sim_date}")
 
-                # 调用 Workflow
                 await self._run_workflow_for_date(sim_date)
-
-                # 记录净值
                 await self._record_equity(sim_date)
 
-            # 4. 计算绩效指标
             result = await self._finalize()
             logger.info(f"回测完成: 总收益率 {result.total_return:.2f}%")
             return result
@@ -99,6 +120,50 @@ class BacktestEngine:
             logger.error(f"回测失败: {e}")
             await self._update_status(BacktestStatus.FAILED, error_message=str(e))
             raise
+
+    async def _run_vectorized_backtest(self) -> BacktestResult:
+        """执行向量化回测。"""
+        try:
+            await self._initialize_vectorized()
+            logger.info(f"开始回测: {self.config.name} (VECTORIZED 模式)")
+            logger.info(f"日期范围: {self.config.start_date} → {self.config.end_date}")
+
+            await self._update_status(BacktestStatus.RUNNING)
+
+            _result_df, metrics = self._vectorized_engine.run()
+
+            logger.info(f"回测完成: 总收益率 {metrics.total_return:.2f}%")
+            return BacktestResult(
+                run_id=self._backtest_run.id,
+                equity_curve=self.equity_curve,
+                total_return=float(metrics.total_return),
+                sharpe_ratio=float(metrics.sharpe_ratio) if metrics.sharpe_ratio else None,
+                max_drawdown=float(metrics.max_drawdown),
+            )
+
+        except Exception as e:
+            logger.error(f"回测失败: {e}")
+            await self._update_status(BacktestStatus.FAILED, error_message=str(e))
+            raise
+
+    async def _initialize_vectorized(self) -> None:
+        """初始化向量化回测记录。"""
+        import json
+
+        account_number = f"VT-{str(uuid7())[:12].upper()}"
+
+        self._backtest_run = BacktestRun(
+            name=self.config.name,
+            symbols=json.dumps(self.config.symbols),
+            start_date=self.config.start_date,
+            end_date=self.config.end_date,
+            interval_days=0,
+            initial_capital=self.config.initial_capital,
+            account_number=account_number,
+            status=BacktestStatus.PENDING,
+        )
+        self.session.add(self._backtest_run)
+        await self.session.flush()
 
     async def _initialize(self) -> None:
         """初始化回测记录和专用账户。"""
