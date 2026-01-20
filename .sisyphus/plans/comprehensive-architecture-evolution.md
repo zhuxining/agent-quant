@@ -414,44 +414,44 @@ async def bulk_import_events(csv_path: str):
 
 ### Week 1-2：向量化技术面回测
 
-#### Task 1.1: 创建回测模型
+#### ✅ Task 1.1: 创建回测模型
 - 创建 `app/models/backtest.py`
 - 定义 `VectorizedBacktestRun` 模型
 
-#### Task 1.2: 实现向量化策略引擎
+#### ✅ Task 1.2: 实现向量化策略引擎
 - 创建 `app/backtest/vectorized_technical.py`
 - 实现 EMA 交叉策略
 - 实现向量化回测引擎
 
-#### Task 1.3: 集成到现有回测流程
+#### ✅ Task 1.3: 集成到现有回测流程
 - 修改 `app/backtest/engine.py`
 - 添加 `mode="vectorized"` 支持
 - 保持向后兼容
 
-#### Task 1.4: 创建回测配置 API
+#### ✅ Task 1.4: 创建回测配置 API
 - 在 `app/api/` 添加回测配置端点
 - 支持配置向量化策略参数
 
 ### Week 3-4：Paper Trading（阶段 1）
 
-#### Task 2.1: 创建交易配置模型
+#### ✅ Task 2.1: 创建交易配置模型
 - 创建 `app/virtual_trade/trading_config.py`
 - 定义 `TradingConfig` 数据类
 
-#### Task 2.2: 实现手续费计算
+#### ✅ Task 2.2: 实现手续费计算
 - 在 `app/virtual_trade/order.py` 添加 `calculate_commission()`
 - 改造 `place_buy_order()` 和 `place_sell_order()`
 
-#### Task 2.3: 实现滑点计算
+#### ✅ Task 2.3: 实现滑点计算
 - 在 `app/virtual_trade/order.py` 添加 `calculate_slippage()`
 - 集成到订单执行逻辑
 
-#### Task 2.4: 实现 T+1 交易
+#### ✅ Task 2.4: 实现 T+1 交易
 - 创建 `app/virtual_trade/paper_trading.py`
 - 实现 T+1 交易逻辑
 - 添加条件单支持
 
-#### Task 2.5: 集成交易配置
+#### ✅ Task 2.5: 集成交易配置
 - 修改 Workflow 使用交易配置
 - 添加配置管理端点
 
